@@ -1,0 +1,576 @@
+{
+  "specforgeVersion": "1.0",
+  "project": {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "PayFlow SaaS Platform",
+    "description": "A multi-tenant SaaS platform for subscription billing and payment processing, built on Stripe.",
+    "tags": ["saas", "payments", "stripe", "typescript"]
+  },
+  "specifications": [
+    {
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "title": "Stripe Webhook Handler",
+      "description": "Implement a robust Stripe webhook ingestion pipeline that receives, validates, and processes Stripe events. The handler must be idempotent, auditable, and support all critical payment lifecycle events.",
+      "content": "# Stripe Webhook Handler\n\nThis specification covers the end-to-end implementation of a Stripe webhook handler for the PayFlow platform. The system must securely receive webhook events from Stripe, verify their signatures, deduplicate them, and dispatch them to domain-specific processors.\n\n## Overview\n\nStripe sends webhook events for payment intents, subscription changes, invoice updates, and dispute notifications. Our handler must process these reliably with at-least-once delivery semantics and idempotent processing.",
+      "status": "ready",
+      "background": "PayFlow currently polls the Stripe API every 60 seconds for payment updates, causing delays of up to 2 minutes for subscription activations. Customers have reported confusion when their dashboard does not reflect successful payments immediately. Switching to webhook-driven processing will reduce latency to under 5 seconds.",
+      "scope": "Webhook endpoint, signature verification, event deduplication, event routing to domain processors (payments, subscriptions, invoices, disputes). Does NOT include Stripe Connect or marketplace payouts.",
+      "goals": [
+        "Process Stripe webhook events within 5 seconds of receipt",
+        "Achieve 99.99% event processing reliability",
+        "Support idempotent processing for all event types",
+        "Provide full audit trail for every webhook event"
+      ],
+      "requirements": [
+        "Expose POST /api/webhooks/stripe endpoint",
+        "Verify Stripe-Signature header using webhook signing secret",
+        "Deduplicate events using Stripe event ID",
+        "Route events to type-specific handler functions",
+        "Store raw event payload for audit purposes",
+        "Return 200 status within 3 seconds to avoid Stripe retries",
+        "Handle at least 100 concurrent webhook deliveries"
+      ],
+      "nonFunctionalRequirements": [
+        "P99 response latency under 500ms",
+        "Zero data loss — all events must be persisted before acknowledgment",
+        "Graceful degradation if downstream processors are slow",
+        "Structured JSON logging for all webhook events"
+      ],
+      "acceptanceCriteria": [
+        "Stripe test webhooks are processed end-to-end in staging environment",
+        "Duplicate event IDs are rejected with 200 status and logged",
+        "Invalid signatures return 401 and are logged as security events",
+        "All 8 supported event types route to correct processors",
+        "Integration tests pass with Stripe CLI webhook forwarding"
+      ],
+      "successMetrics": [
+        "Webhook processing latency P50 < 200ms, P99 < 500ms",
+        "Event processing success rate > 99.99%",
+        "Zero duplicate side effects in a 30-day window",
+        "Customer-facing payment status updates within 5 seconds"
+      ],
+      "guardrails": [
+        "Never expose Stripe signing secrets in logs or error responses",
+        "Never modify payment amounts or currencies in webhook handlers",
+        "Always return 200 for duplicate events to prevent Stripe retries",
+        "Never block the HTTP response on downstream processing"
+      ],
+      "constraints": [
+        "Must use existing Express.js application server",
+        "Must use PostgreSQL for event storage (existing database)",
+        "Must be deployable without infrastructure changes",
+        "Stripe API version pinned to 2024-12-18.acacia"
+      ],
+      "assumptions": [
+        "Stripe webhook signing secret is available via environment variable STRIPE_WEBHOOK_SECRET",
+        "PostgreSQL connection pool is already configured in the application",
+        "Existing authentication middleware does NOT apply to webhook endpoints",
+        "Stripe will retry failed deliveries up to 3 times over 72 hours"
+      ],
+      "risks": [
+        "High webhook volume during flash sales could overwhelm the database connection pool",
+        "Clock skew between Stripe and our servers could cause signature verification failures",
+        "Long-running event processors could cause webhook timeout and retries"
+      ],
+      "architecture": "The webhook handler follows a three-stage pipeline: (1) Ingestion — raw HTTP receipt, signature verification, and immediate 200 response; (2) Persistence — event stored in webhook_events table with status 'received'; (3) Processing — async dispatch to domain handlers via an in-process event queue. Each stage is independently recoverable.",
+      "fileStructure": "src/\n  webhooks/\n    stripe/\n      handler.ts          # Express route handler\n      signature.ts        # Signature verification\n      deduplication.ts    # Event dedup logic\n      router.ts           # Event type routing\n      processors/\n        payment.ts        # payment_intent.* handlers\n        subscription.ts   # customer.subscription.* handlers\n        invoice.ts        # invoice.* handlers\n        dispute.ts        # charge.dispute.* handlers\n      types.ts            # TypeScript types\n      constants.ts        # Event type constants\n  database/\n    migrations/\n      20240301_webhook_events.ts\n    repositories/\n      webhookEventRepository.ts",
+      "techStack": [
+        "TypeScript 5.4",
+        "Node.js 20 LTS",
+        "Express.js 4.x",
+        "PostgreSQL 16",
+        "Stripe Node.js SDK 17.x",
+        "Knex.js 3.x (query builder)",
+        "Vitest 2.x (testing)",
+        "Zod 3.x (runtime validation)"
+      ],
+      "dependencies": [
+        "stripe@^17.0.0",
+        "express@^4.18.0",
+        "knex@^3.1.0",
+        "zod@^3.22.0",
+        "vitest@^2.0.0",
+        "supertest@^7.0.0"
+      ],
+      "apiContracts": {
+        "POST /api/webhooks/stripe": {
+          "headers": {
+            "stripe-signature": "t=timestamp,v1=signature_hash",
+            "content-type": "application/json"
+          },
+          "requestBody": "Raw Stripe event JSON (must be parsed from raw body, not JSON middleware)",
+          "responses": {
+            "200": { "body": { "received": true } },
+            "401": { "body": { "error": "Invalid signature" } },
+            "500": { "body": { "error": "Internal processing error" } }
+          }
+        }
+      },
+      "priority": "high",
+      "tags": ["payments", "stripe", "webhooks", "infrastructure"],
+      "estimatedHours": 32,
+      "patterns": {
+        "codeStandards": {
+          "language": "TypeScript",
+          "style": "functional-core-imperative-shell",
+          "naming": "camelCase for variables/functions, PascalCase for types/interfaces",
+          "errorHandling": "Result pattern — never throw in business logic, only at boundaries",
+          "logging": "Structured JSON via application logger, include correlationId on every log line"
+        },
+        "commonImports": [
+          "import { logger } from '@/lib/logger';",
+          "import { db } from '@/database/connection';",
+          "import type { Result } from '@/lib/result';"
+        ],
+        "returnTypes": {
+          "Result": "type Result<T, E = Error> = { ok: true; value: T } | { ok: false; error: E }",
+          "AsyncResult": "type AsyncResult<T, E = Error> = Promise<Result<T, E>>"
+        }
+      },
+      "epics": [
+        {
+          "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+          "epicNumber": 1,
+          "title": "Webhook Ingestion Pipeline",
+          "description": "Build the HTTP endpoint, signature verification, event deduplication, and persistence layer for incoming Stripe webhooks.",
+          "content": "# Epic 1: Webhook Ingestion Pipeline\n\nThis epic covers everything from the raw HTTP request arriving at our server to the event being safely stored in the database. The focus is on security (signature verification), reliability (deduplication), and speed (respond to Stripe quickly).",
+          "objective": "Establish a secure, reliable ingestion path that receives Stripe webhooks, verifies authenticity, deduplicates, persists, and acknowledges within 500ms.",
+          "status": "in_progress",
+          "order": 0,
+          "scope": "HTTP endpoint, signature verification, deduplication, database persistence, raw body parsing",
+          "goals": [
+            "Verify every webhook signature before processing",
+            "Persist every unique event to the database",
+            "Respond to Stripe within 500ms"
+          ],
+          "acceptanceCriteria": [
+            "POST /api/webhooks/stripe returns 200 for valid events",
+            "Invalid signatures return 401",
+            "Duplicate event IDs return 200 without re-processing",
+            "Events are stored in webhook_events table with raw payload"
+          ],
+          "guardrails": [
+            "Raw body must be preserved for signature verification — do not apply JSON parsing middleware",
+            "Never log full event payloads in production (may contain PII)"
+          ],
+          "constraints": [
+            "Must use raw body buffer for Stripe signature verification",
+            "Database write must complete before returning 200"
+          ],
+          "assumptions": [
+            "Express raw body middleware can be applied per-route",
+            "PostgreSQL can handle the write throughput"
+          ],
+          "risks": [
+            "Express JSON middleware may consume the raw body before signature verification"
+          ],
+          "architecture": "Linear pipeline: Raw HTTP -> Signature Verify -> Dedup Check -> DB Persist -> 200 Response",
+          "fileStructure": "src/webhooks/stripe/handler.ts\nsrc/webhooks/stripe/signature.ts\nsrc/webhooks/stripe/deduplication.ts\nsrc/database/migrations/20240301_webhook_events.ts\nsrc/database/repositories/webhookEventRepository.ts",
+          "techStack": ["TypeScript", "Express.js", "PostgreSQL", "Stripe SDK"],
+          "dependencies": ["stripe", "express", "knex"],
+          "estimatedHours": 16,
+          "priority": "high",
+          "tags": ["ingestion", "security", "database"],
+          "tickets": [
+            {
+              "id": "d4e5f6a7-b8c9-0123-def0-123456789013",
+              "ticketNumber": 1,
+              "title": "Create webhook_events database table and repository",
+              "description": "Create the database migration for the webhook_events table and implement the repository layer for CRUD operations on webhook events.",
+              "notes": "The table must support high write throughput. Add an index on stripe_event_id for deduplication lookups. Consider partitioning by created_at if volume exceeds 1M events/month.",
+              "status": "done",
+              "complexity": "medium",
+              "priority": "critical",
+              "order": 0,
+              "estimatedHours": 4,
+              "actualHours": 3.5,
+              "acceptanceCriteria": [
+                "Migration creates webhook_events table with all required columns",
+                "Unique constraint on stripe_event_id prevents duplicates",
+                "Repository supports insert, findByStripeEventId, and updateStatus",
+                "Migration rolls back cleanly"
+              ],
+              "implementation": {
+                "steps": [
+                  "Create Knex migration file for webhook_events table",
+                  "Define columns: id (uuid PK), stripe_event_id (unique), event_type, payload (jsonb), status, created_at, processed_at",
+                  "Add indexes on stripe_event_id and event_type",
+                  "Create WebhookEventRepository class with insert, findByStripeEventId, updateStatus methods",
+                  "Write unit tests for repository methods"
+                ],
+                "filesToCreate": [
+                  "src/database/migrations/20240301_webhook_events.ts",
+                  "src/database/repositories/webhookEventRepository.ts",
+                  "src/database/repositories/__tests__/webhookEventRepository.test.ts"
+                ],
+                "filesToModify": [
+                  "src/database/repositories/index.ts"
+                ],
+                "notes": "Use Knex migration API. The jsonb column for payload allows efficient querying of event data."
+              },
+              "codeReferences": [
+                {
+                  "name": "Migration table schema",
+                  "code": "export async function up(knex: Knex): Promise<void> {\n  await knex.schema.createTable('webhook_events', (table) => {\n    table.uuid('id').primary().defaultTo(knex.fn.uuid());\n    table.string('stripe_event_id').unique().notNullable();\n    table.string('event_type').notNullable();\n    table.jsonb('payload').notNullable();\n    table.enum('status', ['received', 'processing', 'processed', 'failed']).defaultTo('received');\n    table.timestamp('created_at').defaultTo(knex.fn.now());\n    table.timestamp('processed_at').nullable();\n    table.index(['stripe_event_id']);\n    table.index(['event_type']);\n    table.index(['status']);\n  });\n}",
+                  "language": "typescript"
+                },
+                {
+                  "name": "Repository interface",
+                  "code": "export interface IWebhookEventRepository {\n  insert(event: NewWebhookEvent): AsyncResult<WebhookEvent>;\n  findByStripeEventId(stripeEventId: string): AsyncResult<WebhookEvent | null>;\n  updateStatus(id: string, status: WebhookEventStatus, processedAt?: Date): AsyncResult<void>;\n}",
+                  "language": "typescript"
+                }
+              ],
+              "technicalDetails": {
+                "databaseEngine": "PostgreSQL 16",
+                "queryBuilder": "Knex.js 3.x",
+                "partitioning": "Not required for v1 — revisit at 1M events/month",
+                "indexStrategy": "B-tree on stripe_event_id for O(log n) dedup lookups"
+              },
+              "typeReferences": [
+                {
+                  "name": "WebhookEvent",
+                  "definition": "interface WebhookEvent {\n  id: string;\n  stripeEventId: string;\n  eventType: string;\n  payload: Record<string, unknown>;\n  status: WebhookEventStatus;\n  createdAt: Date;\n  processedAt: Date | null;\n}"
+                },
+                {
+                  "name": "WebhookEventStatus",
+                  "definition": "type WebhookEventStatus = 'received' | 'processing' | 'processed' | 'failed';"
+                },
+                {
+                  "name": "NewWebhookEvent",
+                  "definition": "type NewWebhookEvent = Omit<WebhookEvent, 'id' | 'createdAt' | 'processedAt' | 'status'>;"
+                }
+              ],
+              "testSpecification": {
+                "types": ["unit", "integration"],
+                "commands": [
+                  "npx vitest run src/database/repositories/__tests__/webhookEventRepository.test.ts",
+                  "npx knex migrate:latest --env test && npx knex migrate:rollback --env test"
+                ],
+                "gates": [
+                  "All repository CRUD operations pass with test database",
+                  "Migration applies and rolls back without errors",
+                  "Duplicate stripe_event_id insert throws unique constraint error"
+                ]
+              },
+              "dependencies": [],
+              "tags": ["database", "migration", "repository"]
+            },
+            {
+              "id": "d4e5f6a7-b8c9-0123-def0-123456789014",
+              "ticketNumber": 2,
+              "title": "Implement webhook endpoint with signature verification and deduplication",
+              "description": "Create the Express route handler for POST /api/webhooks/stripe with Stripe signature verification, event deduplication using the repository, and immediate 200 acknowledgment.",
+              "notes": "The raw body must be preserved for signature verification. Express JSON middleware will consume the body buffer, so use express.raw() middleware on this route only. Return 200 as fast as possible to avoid Stripe retries.",
+              "status": "active",
+              "complexity": "large",
+              "priority": "critical",
+              "order": 1,
+              "estimatedHours": 8,
+              "actualHours": 0,
+              "acceptanceCriteria": [
+                "Valid Stripe webhooks return 200 with { received: true }",
+                "Invalid signatures return 401",
+                "Duplicate events return 200 without re-processing",
+                "Events are persisted to database before response",
+                "Raw body is used for signature verification (not parsed JSON)"
+              ],
+              "implementation": {
+                "steps": [
+                  "Create signature.ts with verifyStripeSignature function using Stripe SDK",
+                  "Create deduplication.ts with isDuplicate function using WebhookEventRepository",
+                  "Create handler.ts with Express route handler that orchestrates verify -> dedup -> persist -> respond",
+                  "Register route in Express app with express.raw() middleware",
+                  "Write integration tests using Supertest with Stripe test fixtures"
+                ],
+                "filesToCreate": [
+                  "src/webhooks/stripe/handler.ts",
+                  "src/webhooks/stripe/signature.ts",
+                  "src/webhooks/stripe/deduplication.ts",
+                  "src/webhooks/stripe/__tests__/handler.test.ts",
+                  "src/webhooks/stripe/__tests__/signature.test.ts"
+                ],
+                "filesToModify": [
+                  "src/app.ts",
+                  "src/routes/index.ts"
+                ],
+                "notes": "Use stripe.webhooks.constructEvent() for signature verification — it handles timestamp tolerance and signature comparison securely."
+              },
+              "codeReferences": [
+                {
+                  "name": "Signature verification function",
+                  "code": "import Stripe from 'stripe';\nimport { Result } from '@/lib/result';\n\nexport function verifyStripeSignature(\n  rawBody: Buffer,\n  signature: string,\n  secret: string\n): Result<Stripe.Event> {\n  try {\n    const event = stripe.webhooks.constructEvent(rawBody, signature, secret);\n    return { ok: true, value: event };\n  } catch (err) {\n    return { ok: false, error: new Error(`Signature verification failed: ${err.message}`) };\n  }\n}",
+                  "language": "typescript"
+                },
+                {
+                  "name": "Route handler skeleton",
+                  "code": "export const stripeWebhookHandler: RequestHandler = async (req, res) => {\n  const signature = req.headers['stripe-signature'] as string;\n  const result = verifyStripeSignature(req.body, signature, config.stripeWebhookSecret);\n  if (!result.ok) {\n    logger.warn({ error: result.error.message }, 'Webhook signature verification failed');\n    return res.status(401).json({ error: 'Invalid signature' });\n  }\n  // dedup, persist, respond 200, then process async\n};",
+                  "language": "typescript"
+                }
+              ],
+              "technicalDetails": {
+                "signatureAlgorithm": "HMAC-SHA256 with timestamp tolerance of 300 seconds",
+                "bodyParsing": "Must use express.raw({ type: 'application/json' }) — not express.json()",
+                "responseStrategy": "Return 200 before async processing to meet Stripe timeout requirements"
+              },
+              "typeReferences": [
+                {
+                  "name": "StripeWebhookConfig",
+                  "definition": "interface StripeWebhookConfig {\n  stripeWebhookSecret: string;\n  signatureToleranceSeconds: number;\n}"
+                }
+              ],
+              "testSpecification": {
+                "types": ["unit", "integration"],
+                "commands": [
+                  "npx vitest run src/webhooks/stripe/__tests__/",
+                  "stripe listen --forward-to localhost:3000/api/webhooks/stripe"
+                ],
+                "gates": [
+                  "Valid signature returns 200",
+                  "Tampered payload returns 401",
+                  "Missing stripe-signature header returns 401",
+                  "Duplicate event ID returns 200 without database insert",
+                  "Response time under 500ms for valid events"
+                ]
+              },
+              "dependencies": [
+                {
+                  "dependsOnId": "d4e5f6a7-b8c9-0123-def0-123456789013",
+                  "type": "requires"
+                }
+              ],
+              "tags": ["endpoint", "security", "express"]
+            }
+          ]
+        },
+        {
+          "id": "c3d4e5f6-a7b8-9012-cdef-123456789022",
+          "epicNumber": 2,
+          "title": "Event Processing and Domain Routing",
+          "description": "Implement the event routing layer that dispatches verified webhook events to domain-specific processors for payments, subscriptions, invoices, and disputes.",
+          "content": "# Epic 2: Event Processing and Domain Routing\n\nOnce events are ingested and persisted, they must be routed to the correct domain processor. Each processor handles a family of Stripe event types and translates them into domain actions (e.g., activating a subscription, recording a payment).",
+          "objective": "Build an extensible event routing system with domain processors for all critical Stripe event types, ensuring idempotent processing and proper error handling.",
+          "status": "todo",
+          "order": 1,
+          "scope": "Event type router, payment processor, subscription processor, invoice processor, dispute processor",
+          "goals": [
+            "Route all supported event types to correct processors",
+            "Process events idempotently",
+            "Handle processor failures without losing events"
+          ],
+          "acceptanceCriteria": [
+            "payment_intent.succeeded events update payment records",
+            "customer.subscription.updated events update subscription status",
+            "invoice.payment_failed events trigger dunning notifications",
+            "charge.dispute.created events create dispute records",
+            "Unknown event types are logged and marked as skipped"
+          ],
+          "guardrails": [
+            "Processors must be idempotent — re-processing an event must not create duplicate side effects",
+            "Processor failures must update event status to 'failed', not crash the application"
+          ],
+          "constraints": [
+            "Processors run in-process (no external queue in v1)",
+            "Must not exceed existing database connection pool limits"
+          ],
+          "assumptions": [
+            "Domain services (PaymentService, SubscriptionService) already exist",
+            "Notification service is available for dunning emails"
+          ],
+          "risks": [
+            "Long-running processors could block the event queue",
+            "Domain service failures could cascade to webhook processing"
+          ],
+          "architecture": "Router pattern: EventRouter maps event type prefixes to processor instances. Each processor implements the IEventProcessor interface with a process(event) method returning AsyncResult<void>.",
+          "fileStructure": "src/webhooks/stripe/router.ts\nsrc/webhooks/stripe/processors/payment.ts\nsrc/webhooks/stripe/processors/subscription.ts\nsrc/webhooks/stripe/processors/invoice.ts\nsrc/webhooks/stripe/processors/dispute.ts",
+          "techStack": ["TypeScript", "Stripe SDK", "Zod"],
+          "dependencies": ["stripe", "zod"],
+          "estimatedHours": 16,
+          "priority": "high",
+          "tags": ["processing", "routing", "domain-logic"],
+          "tickets": [
+            {
+              "id": "d4e5f6a7-b8c9-0123-def0-123456789023",
+              "ticketNumber": 1,
+              "title": "Implement event type router",
+              "description": "Create the EventRouter class that maps Stripe event type prefixes to processor instances and dispatches events for async processing.",
+              "notes": "The router should use a Map<string, IEventProcessor> for O(1) lookup. Support prefix matching so 'payment_intent.*' routes to the PaymentProcessor.",
+              "status": "pending",
+              "complexity": "medium",
+              "priority": "high",
+              "order": 0,
+              "estimatedHours": 4,
+              "actualHours": 0,
+              "acceptanceCriteria": [
+                "Router dispatches payment_intent.* events to PaymentProcessor",
+                "Router dispatches customer.subscription.* events to SubscriptionProcessor",
+                "Router dispatches invoice.* events to InvoiceProcessor",
+                "Router dispatches charge.dispute.* events to DisputeProcessor",
+                "Unknown event types log a warning and return success"
+              ],
+              "implementation": {
+                "steps": [
+                  "Define IEventProcessor interface with process(event: StripeWebhookEvent): AsyncResult<void>",
+                  "Create EventRouter class with register(prefix, processor) and dispatch(event) methods",
+                  "Implement prefix matching logic for event type to processor lookup",
+                  "Add structured logging for dispatch events",
+                  "Write unit tests with mock processors"
+                ],
+                "filesToCreate": [
+                  "src/webhooks/stripe/router.ts",
+                  "src/webhooks/stripe/types.ts",
+                  "src/webhooks/stripe/__tests__/router.test.ts"
+                ],
+                "filesToModify": [],
+                "notes": "Keep the router simple — no dependency injection framework needed. Constructor takes processor map."
+              },
+              "codeReferences": [
+                {
+                  "name": "IEventProcessor interface",
+                  "code": "export interface IEventProcessor {\n  readonly supportedPrefixes: string[];\n  process(event: WebhookEvent): AsyncResult<void>;\n}",
+                  "language": "typescript"
+                },
+                {
+                  "name": "EventRouter dispatch",
+                  "code": "export class EventRouter {\n  private processors: Map<string, IEventProcessor>;\n\n  async dispatch(event: WebhookEvent): AsyncResult<void> {\n    const processor = this.findProcessor(event.eventType);\n    if (!processor) {\n      logger.warn({ eventType: event.eventType }, 'No processor registered for event type');\n      return { ok: true, value: undefined };\n    }\n    return processor.process(event);\n  }\n}",
+                  "language": "typescript"
+                }
+              ],
+              "technicalDetails": {
+                "routingStrategy": "Prefix match on event type string (e.g., 'payment_intent' matches 'payment_intent.succeeded')",
+                "concurrency": "Single-threaded dispatch in v1, async processing within each processor"
+              },
+              "typeReferences": [
+                {
+                  "name": "ProcessorMap",
+                  "definition": "type ProcessorMap = Map<string, IEventProcessor>;"
+                }
+              ],
+              "testSpecification": {
+                "types": ["unit"],
+                "commands": [
+                  "npx vitest run src/webhooks/stripe/__tests__/router.test.ts"
+                ],
+                "gates": [
+                  "Correct processor called for each event type prefix",
+                  "Unknown event types do not throw",
+                  "Processor errors are captured in Result, not thrown"
+                ]
+              },
+              "dependencies": [
+                {
+                  "dependsOnId": "d4e5f6a7-b8c9-0123-def0-123456789014",
+                  "type": "requires"
+                }
+              ],
+              "tags": ["routing", "architecture"]
+            },
+            {
+              "id": "d4e5f6a7-b8c9-0123-def0-123456789024",
+              "ticketNumber": 2,
+              "title": "Implement payment and subscription event processors",
+              "description": "Create the PaymentProcessor and SubscriptionProcessor classes that handle payment_intent.* and customer.subscription.* events respectively, translating Stripe events into domain actions.",
+              "notes": "Both processors must be idempotent. Use the Stripe event ID combined with event type as the idempotency key. Check if the domain entity already reflects the event state before applying changes.",
+              "status": "pending",
+              "complexity": "large",
+              "priority": "high",
+              "order": 1,
+              "estimatedHours": 8,
+              "actualHours": 0,
+              "acceptanceCriteria": [
+                "payment_intent.succeeded creates or updates payment record with status 'completed'",
+                "payment_intent.payment_failed updates payment record with status 'failed'",
+                "customer.subscription.created creates subscription record",
+                "customer.subscription.updated updates subscription status and period dates",
+                "customer.subscription.deleted marks subscription as canceled",
+                "Re-processing the same event produces no additional side effects"
+              ],
+              "implementation": {
+                "steps": [
+                  "Create PaymentProcessor implementing IEventProcessor",
+                  "Implement handlePaymentIntentSucceeded and handlePaymentIntentFailed methods",
+                  "Create SubscriptionProcessor implementing IEventProcessor",
+                  "Implement handleSubscriptionCreated, handleSubscriptionUpdated, handleSubscriptionDeleted methods",
+                  "Add Zod schemas for Stripe event payload validation",
+                  "Add idempotency checks in each handler",
+                  "Write unit tests with fixture data from Stripe"
+                ],
+                "filesToCreate": [
+                  "src/webhooks/stripe/processors/payment.ts",
+                  "src/webhooks/stripe/processors/subscription.ts",
+                  "src/webhooks/stripe/processors/__tests__/payment.test.ts",
+                  "src/webhooks/stripe/processors/__tests__/subscription.test.ts"
+                ],
+                "filesToModify": [
+                  "src/webhooks/stripe/router.ts"
+                ],
+                "notes": "Use Stripe's TypeScript types for event payloads. Validate with Zod at runtime as defense-in-depth."
+              },
+              "codeReferences": [
+                {
+                  "name": "PaymentProcessor skeleton",
+                  "code": "export class PaymentProcessor implements IEventProcessor {\n  readonly supportedPrefixes = ['payment_intent'];\n\n  async process(event: WebhookEvent): AsyncResult<void> {\n    switch (event.eventType) {\n      case 'payment_intent.succeeded':\n        return this.handleSucceeded(event);\n      case 'payment_intent.payment_failed':\n        return this.handleFailed(event);\n      default:\n        logger.info({ eventType: event.eventType }, 'Unhandled payment event subtype');\n        return { ok: true, value: undefined };\n    }\n  }\n}",
+                  "language": "typescript"
+                },
+                {
+                  "name": "Idempotency check pattern",
+                  "code": "private async handleSucceeded(event: WebhookEvent): AsyncResult<void> {\n  const paymentIntent = event.payload.data.object as Stripe.PaymentIntent;\n  const existing = await this.paymentService.findByStripeId(paymentIntent.id);\n  if (existing && existing.status === 'completed') {\n    logger.info({ stripeId: paymentIntent.id }, 'Payment already processed, skipping');\n    return { ok: true, value: undefined };\n  }\n  // proceed with update\n}",
+                  "language": "typescript"
+                }
+              ],
+              "technicalDetails": {
+                "idempotencyStrategy": "Check domain entity state before applying changes. If already in target state, skip and return success.",
+                "payloadValidation": "Zod schemas validate Stripe event payload structure at runtime",
+                "domainServices": "PaymentService and SubscriptionService are injected via constructor"
+              },
+              "typeReferences": [
+                {
+                  "name": "PaymentRecord",
+                  "definition": "interface PaymentRecord {\n  id: string;\n  stripePaymentIntentId: string;\n  amount: number;\n  currency: string;\n  status: 'pending' | 'completed' | 'failed' | 'refunded';\n  customerId: string;\n  createdAt: Date;\n  updatedAt: Date;\n}"
+                },
+                {
+                  "name": "SubscriptionRecord",
+                  "definition": "interface SubscriptionRecord {\n  id: string;\n  stripeSubscriptionId: string;\n  customerId: string;\n  status: 'active' | 'past_due' | 'canceled' | 'unpaid';\n  currentPeriodStart: Date;\n  currentPeriodEnd: Date;\n  createdAt: Date;\n  updatedAt: Date;\n}"
+                }
+              ],
+              "testSpecification": {
+                "types": ["unit", "integration"],
+                "commands": [
+                  "npx vitest run src/webhooks/stripe/processors/__tests__/"
+                ],
+                "gates": [
+                  "All event subtypes route to correct handler method",
+                  "Idempotent re-processing produces no duplicate records",
+                  "Invalid payloads are caught by Zod validation and returned as errors",
+                  "Domain service is called with correct parameters"
+                ]
+              },
+              "dependencies": [
+                {
+                  "dependsOnId": "d4e5f6a7-b8c9-0123-def0-123456789023",
+                  "type": "blocks"
+                }
+              ],
+              "tags": ["processing", "payments", "subscriptions"]
+            }
+          ]
+        }
+      ],
+      "blueprints": [
+        {
+          "id": "e5f6a7b8-c9d0-1234-ef01-234567890125",
+          "title": "Stripe Webhook Architecture",
+          "description": "High-level architecture diagram showing the webhook ingestion pipeline from Stripe to domain processors.",
+          "slug": "stripe-webhook-architecture",
+          "category": "architecture",
+          "format": "mermaid",
+          "content": "graph TB\n    Stripe[Stripe API] -->|POST /api/webhooks/stripe| LB[Load Balancer]\n    LB --> Express[Express Server]\n    \n    subgraph Ingestion Pipeline\n        Express --> RawBody[Raw Body Parser]\n        RawBody --> SigVerify[Signature Verification]\n        SigVerify -->|Invalid| Reject[401 Reject]\n        SigVerify -->|Valid| Dedup[Deduplication Check]\n        Dedup -->|Duplicate| Ack200[200 Acknowledge]\n        Dedup -->|New Event| Persist[Persist to DB]\n        Persist --> Ack200\n    end\n    \n    subgraph Event Processing\n        Persist --> Router[Event Router]\n        Router --> PaymentProc[Payment Processor]\n        Router --> SubProc[Subscription Processor]\n        Router --> InvProc[Invoice Processor]\n        Router --> DispProc[Dispute Processor]\n    end\n    \n    subgraph Data Stores\n        Persist --> DB[(PostgreSQL)]\n        PaymentProc --> DB\n        SubProc --> DB\n        InvProc --> DB\n        DispProc --> DB\n    end\n    \n    subgraph Domain Services\n        PaymentProc --> PaySvc[Payment Service]\n        SubProc --> SubSvc[Subscription Service]\n        InvProc --> InvSvc[Invoice Service]\n        DispProc --> DispSvc[Dispute Service]\n    end",
+          "notes": "This diagram represents the v1 architecture with in-process event processing. Future versions may introduce an external message queue between ingestion and processing for better scalability.",
+          "version": "1.0.0",
+          "order": 0,
+          "status": "approved",
+          "tags": ["architecture", "webhook", "pipeline"]
+        }
+      ]
+    }
+  ]
+}

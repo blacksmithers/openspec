@@ -1,0 +1,26 @@
+/* SpecForge brand colors — Indigo/Violet palette from webapp */
+:root[data-theme='dark'] {
+  --sl-color-accent-low: #1e1b4b;       /* Indigo-950 — deep accent for backgrounds */
+  --sl-color-accent: #6366f1;            /* Indigo-500 — primary brand accent */
+  --sl-color-accent-high: #a5b4fc;       /* Indigo-300 — bright accent for text on dark */
+  --sl-color-bg-nav: #0e0e11;            /* Marketing surface */
+  --sl-color-bg: #08080a;               /* Marketing background */
+  --sl-color-bg-sidebar: #0e0e11;        /* Marketing surface */
+  --sl-color-white: #fafafa;             /* Zinc-50 */
+  --sl-color-gray-1: #d4d4d8;           /* Zinc-300 */
+  --sl-color-gray-2: #a1a1aa;           /* Zinc-400 */
+  --sl-color-gray-3: #71717a;           /* Zinc-500 */
+  --sl-color-gray-4: #3f3f46;           /* Zinc-700 */
+  --sl-color-gray-5: #27272a;           /* Zinc-800 */
+  --sl-color-gray-6: #18181b;           /* Zinc-900 */
+  --sl-color-black: #08080a;            /* Marketing background */
+}
+
+:root[data-theme='light'] {
+  --sl-color-accent-low: #eef2ff;       /* Indigo-50 */
+  --sl-color-accent: #4338ca;           /* Indigo-700 */
+  --sl-color-accent-high: #1e1b4b;      /* Indigo-950 */
+  --sl-color-bg-nav: #ffffff;
+  --sl-color-bg: #fafafa;               /* Zinc-50 */
+  --sl-color-bg-sidebar: #ffffff;
+}

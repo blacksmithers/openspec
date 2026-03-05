@@ -1,0 +1,241 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schema.specforge.tech/schema/v1.0/specforge-schema.json",
+  "title": "SpecForge Specification Format",
+  "description": "Open standard for AI agent orchestration specifications. Version 1.0.",
+  "type": "object",
+  "required": ["specforgeVersion", "project"],
+  "properties": {
+    "specforgeVersion": {
+      "type": "string",
+      "enum": ["1.0"],
+      "description": "SpecForge format version. Must match a published version at schema.specforge.tech."
+    },
+    "project": { "$ref": "#/definitions/Project" },
+    "specifications": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/Specification" }
+    }
+  },
+  "definitions": {
+    "Project": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id":          { "type": "string", "format": "uuid" },
+        "name":        { "type": "string" },
+        "description": { "type": "string" },
+        "tags":        { "type": "array", "items": { "type": "string" }, "description": "Aspirational — not yet implemented in engine v1." }
+      }
+    },
+    "Specification": {
+      "type": "object",
+      "required": ["id", "title"],
+      "properties": {
+        "id":          { "type": "string", "format": "uuid" },
+        "title":       { "type": "string" },
+        "description": { "type": "string", "description": "Short summary (2-3 sentences)" },
+        "content":     { "type": "string", "description": "Full markdown content body" },
+        "status": {
+          "type": "string",
+          "enum": ["draft", "planning", "specifying", "validating", "ready", "in_progress", "ready_for_review", "in_review", "reviewed", "completed"],
+          "description": "Lifecycle status. Engines may implement a subset of these values."
+        },
+        "background":                { "type": "string" },
+        "scope":                     { "type": "string" },
+        "goals":                     { "type": "array", "items": { "type": "string" } },
+        "requirements":              { "type": "array", "items": { "type": "string" } },
+        "nonFunctionalRequirements": { "type": "array", "items": { "type": "string" } },
+        "acceptanceCriteria":        { "type": "array", "items": { "type": "string" } },
+        "successMetrics":            { "type": "array", "items": { "type": "string" }, "description": "KPIs to measure success — distinct from acceptanceCriteria" },
+        "guardrails":                { "type": "array", "items": { "type": "string" } },
+        "constraints":               { "type": "array", "items": { "type": "string" } },
+        "assumptions":               { "type": "array", "items": { "type": "string" } },
+        "risks":                     { "type": "array", "items": { "type": "string" } },
+        "architecture":              { "type": "string" },
+        "fileStructure":             { "type": "string" },
+        "techStack":                 { "type": "array", "items": { "type": "string" } },
+        "dependencies":              { "type": "array", "items": { "type": "string" }, "description": "External packages, services, or libraries this spec depends on" },
+        "apiContracts":              { "type": "object", "description": "API specification contracts (request/response shapes)" },
+        "priority":                  { "type": "string", "enum": ["high", "medium", "low"] },
+        "tags":                      { "type": "array", "items": { "type": "string" } },
+        "estimatedHours":            { "type": "number", "minimum": 0 },
+        "patterns":                  { "$ref": "#/definitions/Patterns" },
+        "epics":                     { "type": "array", "items": { "$ref": "#/definitions/Epic" } },
+        "blueprints":                { "type": "array", "items": { "$ref": "#/definitions/Blueprint" } }
+      }
+    },
+    "Epic": {
+      "type": "object",
+      "required": ["id", "title"],
+      "properties": {
+        "id":          { "type": "string", "format": "uuid" },
+        "epicNumber":  { "type": "integer", "minimum": 1, "description": "Sequential identifier within specification" },
+        "title":       { "type": "string" },
+        "description": { "type": "string" },
+        "content":     { "type": "string", "description": "Full markdown content body" },
+        "objective":   { "type": "string" },
+        "status": {
+          "type": "string",
+          "enum": ["todo", "in_progress", "completed"]
+        },
+        "order":                     { "type": "integer", "minimum": 0, "description": "Execution ordering within specification" },
+        "scope":                     { "type": "string" },
+        "goals":                     { "type": "array", "items": { "type": "string" } },
+        "acceptanceCriteria":        { "type": "array", "items": { "type": "string" } },
+        "guardrails":                { "type": "array", "items": { "type": "string" } },
+        "constraints":               { "type": "array", "items": { "type": "string" } },
+        "assumptions":               { "type": "array", "items": { "type": "string" } },
+        "risks":                     { "type": "array", "items": { "type": "string" } },
+        "architecture":              { "type": "string" },
+        "fileStructure":             { "type": "string" },
+        "techStack":                 { "type": "array", "items": { "type": "string" } },
+        "dependencies":              { "type": "array", "items": { "type": "string" } },
+        "estimatedHours":            { "type": "number", "minimum": 0 },
+        "priority":                  { "type": "string", "enum": ["high", "medium", "low"] },
+        "tags":                      { "type": "array", "items": { "type": "string" } },
+        "tickets":                   { "type": "array", "items": { "$ref": "#/definitions/Ticket" } }
+      }
+    },
+    "Ticket": {
+      "type": "object",
+      "required": ["id", "title"],
+      "properties": {
+        "id":           { "type": "string", "format": "uuid" },
+        "ticketNumber": { "type": "integer", "minimum": 1, "description": "Sequential identifier within epic" },
+        "title":        { "type": "string" },
+        "description":  { "type": "string" },
+        "notes":        { "type": "string", "description": "Additional context, warnings, or considerations for implementors" },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "ready", "active", "done"],
+          "description": "Blocked state is not a status — it is signaled via blockReason on a pending ticket."
+        },
+        "complexity": {
+          "type": "string",
+          "enum": ["small", "medium", "large", "xlarge"]
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["critical", "high", "medium", "low"]
+        },
+        "order":          { "type": "integer", "minimum": 0, "description": "Execution ordering within epic" },
+        "estimatedHours": { "type": "number", "minimum": 0 },
+        "actualHours":    { "type": "number", "minimum": 0, "description": "Actual time spent — tracked by engine during execution" },
+        "acceptanceCriteria": { "type": "array", "items": { "type": "string" } },
+        "implementation": {
+          "type": "object",
+          "description": "Implementation instructions for the executing agent",
+          "properties": {
+            "steps":           { "type": "array", "items": { "type": "string" } },
+            "filesToCreate":   { "type": "array", "items": { "type": "string" } },
+            "filesToModify":   { "type": "array", "items": { "type": "string" } },
+            "notes":           { "type": "string" }
+          }
+        },
+        "codeReferences": {
+          "type": "array",
+          "description": "Code snippets, signatures, or patterns the agent must follow",
+          "items": {
+            "type": "object",
+            "required": ["name", "code"],
+            "properties": {
+              "name":     { "type": "string" },
+              "code":     { "type": "string" },
+              "language": { "type": "string" }
+            }
+          }
+        },
+        "technicalDetails": {
+          "type": "object",
+          "description": "Technical context for implementation (architecture decisions, constraints, etc.)"
+        },
+        "typeReferences": {
+          "type": "array",
+          "description": "TypeScript type definitions the agent must use",
+          "items": {
+            "type": "object",
+            "required": ["name", "definition"],
+            "properties": {
+              "name":       { "type": "string" },
+              "definition": { "type": "string" }
+            }
+          }
+        },
+        "testSpecification": {
+          "type": "object",
+          "description": "Test requirements, quality gates, and validation commands",
+          "properties": {
+            "types":    { "type": "array", "items": { "type": "string" } },
+            "commands": { "type": "array", "items": { "type": "string" } },
+            "gates":    { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "dependencies": {
+          "type": "array",
+          "description": "Tickets this ticket depends on, with relationship type",
+          "items": {
+            "type": "object",
+            "required": ["dependsOnId", "type"],
+            "properties": {
+              "dependsOnId": { "type": "string", "format": "uuid" },
+              "type": {
+                "type": "string",
+                "enum": ["blocks", "requires"],
+                "description": "blocks: this ticket cannot start until dependsOn is done. requires: needs output from dependsOn."
+              }
+            }
+          }
+        },
+        "tags": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "Blueprint": {
+      "type": "object",
+      "required": ["id", "title", "category", "content"],
+      "description": "Design artifact (diagram, ADR, mockup) linked to a specification",
+      "properties": {
+        "id":          { "type": "string", "format": "uuid" },
+        "title":       { "type": "string" },
+        "description": { "type": "string" },
+        "slug":        { "type": "string", "description": "URL-friendly identifier" },
+        "category": {
+          "type": "string",
+          "enum": ["flowchart", "architecture", "state", "sequence", "erd", "mockup", "adr", "component", "deployment", "api"]
+        },
+        "format": {
+          "type": "string",
+          "enum": ["markdown", "mermaid", "ascii", "mixed"]
+        },
+        "content": { "type": "string", "description": "Mermaid diagram, markdown, ASCII art, or mixed content" },
+        "notes":   { "type": "string" },
+        "version": { "type": "string", "description": "Semantic version of this blueprint" },
+        "order":   { "type": "integer", "minimum": 0 },
+        "status": {
+          "type": "string",
+          "enum": ["draft", "review", "approved", "deprecated"]
+        },
+        "tags": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "Patterns": {
+      "type": "object",
+      "description": "Coding standards that propagate down to all epics and tickets in a specification",
+      "properties": {
+        "codeStandards": {
+          "type": "object",
+          "description": "Coding standards (language, naming conventions, error handling strategy, etc.)"
+        },
+        "commonImports": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Import statements shared across all tickets"
+        },
+        "returnTypes": {
+          "type": "object",
+          "description": "Standard return type patterns (e.g. Result<T, E> shapes)"
+        }
+      }
+    }
+  }
+}

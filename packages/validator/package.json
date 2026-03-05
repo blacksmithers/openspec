@@ -1,0 +1,25 @@
+{
+  "name": "@specforge/validator",
+  "version": "1.0.0",
+  "description": "Standalone offline validator for the SpecForge Specification Format. Supports JSON, YAML, and TOON.",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "specforge-validate": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "yaml": "^2.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.3",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  }
+}

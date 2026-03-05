@@ -1,0 +1,246 @@
+{
+  "specforgeVersion": "1.0",
+  "project": {
+    "id": "f1a2b3c4-d5e6-7890-abcd-ef1234567890",
+    "name": "SecureAuth Platform",
+    "description": "User authentication and authorization system with JWT-based session management."
+  },
+  "specifications": [
+    {
+      "id": "a2b3c4d5-e6f7-8901-bcde-f12345678901",
+      "title": "User Authentication Flow",
+      "description": "Implement the complete user authentication flow from database schema through API endpoints, middleware, and integration testing.",
+      "status": "in_progress",
+      "priority": "high",
+      "techStack": ["TypeScript", "Node.js", "PostgreSQL", "Express.js", "JWT"],
+      "epics": [
+        {
+          "id": "b3c4d5e6-f7a8-9012-cdef-123456789012",
+          "epicNumber": 1,
+          "title": "Authentication System",
+          "description": "Full authentication stack from database to integration tests, with clear dependency ordering between tickets.",
+          "objective": "Deliver a production-ready authentication system with proper dependency sequencing.",
+          "status": "in_progress",
+          "order": 0,
+          "priority": "high",
+          "tickets": [
+            {
+              "id": "c4d5e6f7-a8b9-0123-def0-111111111111",
+              "ticketNumber": 1,
+              "title": "Create users table and auth database schema",
+              "description": "Create the PostgreSQL migration for the users table including columns for email, password_hash, role, email_verified, and timestamps. This is the foundational ticket with no dependencies.",
+              "status": "done",
+              "complexity": "medium",
+              "priority": "critical",
+              "order": 0,
+              "estimatedHours": 3,
+              "actualHours": 2.5,
+              "acceptanceCriteria": [
+                "users table created with id, email, password_hash, role, email_verified, created_at, updated_at",
+                "Unique constraint on email column",
+                "Migration rolls forward and back cleanly",
+                "UserRepository with create, findByEmail, findById methods"
+              ],
+              "implementation": {
+                "steps": [
+                  "Create Knex migration for users table",
+                  "Add unique index on email",
+                  "Create UserRepository class",
+                  "Write repository unit tests"
+                ],
+                "filesToCreate": [
+                  "src/database/migrations/20240301_users.ts",
+                  "src/database/repositories/userRepository.ts",
+                  "src/database/repositories/__tests__/userRepository.test.ts"
+                ],
+                "filesToModify": []
+              },
+              "dependencies": [],
+              "tags": ["database", "schema", "foundation"]
+            },
+            {
+              "id": "c4d5e6f7-a8b9-0123-def0-222222222222",
+              "ticketNumber": 2,
+              "title": "Implement auth service with password hashing and JWT",
+              "description": "Build the AuthService class that handles user registration, login with bcrypt password verification, and JWT token generation/validation. Requires the users table and repository from ticket 1.",
+              "status": "active",
+              "complexity": "large",
+              "priority": "critical",
+              "order": 1,
+              "estimatedHours": 6,
+              "actualHours": 0,
+              "acceptanceCriteria": [
+                "register() hashes password with bcrypt and creates user",
+                "login() verifies password and returns JWT access + refresh tokens",
+                "validateToken() verifies JWT signature and expiry",
+                "Passwords are never stored or logged in plaintext"
+              ],
+              "implementation": {
+                "steps": [
+                  "Create AuthService with register, login, validateToken methods",
+                  "Implement bcrypt password hashing with configurable salt rounds",
+                  "Implement JWT sign/verify with RS256 algorithm",
+                  "Add refresh token rotation logic",
+                  "Write unit tests with mocked UserRepository"
+                ],
+                "filesToCreate": [
+                  "src/services/authService.ts",
+                  "src/services/__tests__/authService.test.ts",
+                  "src/lib/jwt.ts"
+                ],
+                "filesToModify": []
+              },
+              "dependencies": [
+                {
+                  "dependsOnId": "c4d5e6f7-a8b9-0123-def0-111111111111",
+                  "type": "requires"
+                }
+              ],
+              "tags": ["auth", "service", "jwt", "bcrypt"]
+            },
+            {
+              "id": "c4d5e6f7-a8b9-0123-def0-333333333333",
+              "ticketNumber": 3,
+              "title": "Create authentication API endpoints",
+              "description": "Implement POST /api/auth/register, POST /api/auth/login, and POST /api/auth/refresh Express route handlers that delegate to AuthService. Requires the auth service from ticket 2.",
+              "status": "pending",
+              "complexity": "medium",
+              "priority": "high",
+              "order": 2,
+              "estimatedHours": 4,
+              "actualHours": 0,
+              "acceptanceCriteria": [
+                "POST /api/auth/register creates user and returns 201 with tokens",
+                "POST /api/auth/login returns 200 with tokens for valid credentials",
+                "POST /api/auth/login returns 401 for invalid credentials",
+                "POST /api/auth/refresh rotates refresh token",
+                "Request validation with Zod schemas on all endpoints"
+              ],
+              "implementation": {
+                "steps": [
+                  "Create auth router with register, login, refresh routes",
+                  "Add Zod request validation schemas",
+                  "Wire routes to AuthService methods",
+                  "Add rate limiting on login endpoint",
+                  "Write integration tests with Supertest"
+                ],
+                "filesToCreate": [
+                  "src/routes/auth.ts",
+                  "src/routes/__tests__/auth.test.ts",
+                  "src/validation/authSchemas.ts"
+                ],
+                "filesToModify": [
+                  "src/routes/index.ts"
+                ]
+              },
+              "dependencies": [
+                {
+                  "dependsOnId": "c4d5e6f7-a8b9-0123-def0-222222222222",
+                  "type": "blocks"
+                }
+              ],
+              "tags": ["api", "endpoints", "express"]
+            },
+            {
+              "id": "c4d5e6f7-a8b9-0123-def0-444444444444",
+              "ticketNumber": 4,
+              "title": "Implement authentication middleware",
+              "description": "Create Express middleware that extracts JWT from Authorization header, validates it via AuthService, and attaches the authenticated user to the request context. Requires the auth service (ticket 2) for token validation and the API endpoints (ticket 3) to be defined so middleware can be applied to protected routes.",
+              "status": "pending",
+              "complexity": "medium",
+              "priority": "high",
+              "order": 3,
+              "estimatedHours": 3,
+              "actualHours": 0,
+              "acceptanceCriteria": [
+                "Middleware extracts Bearer token from Authorization header",
+                "Valid tokens attach user object to req.user",
+                "Invalid or expired tokens return 401",
+                "Missing Authorization header returns 401",
+                "Middleware is composable with role-based authorization"
+              ],
+              "implementation": {
+                "steps": [
+                  "Create authMiddleware function that validates JWT",
+                  "Create requireRole middleware factory for role-based access",
+                  "Extend Express Request type with user property",
+                  "Apply middleware to protected routes",
+                  "Write unit tests with mock tokens"
+                ],
+                "filesToCreate": [
+                  "src/middleware/auth.ts",
+                  "src/middleware/__tests__/auth.test.ts",
+                  "src/types/express.d.ts"
+                ],
+                "filesToModify": [
+                  "src/routes/index.ts"
+                ]
+              },
+              "dependencies": [
+                {
+                  "dependsOnId": "c4d5e6f7-a8b9-0123-def0-222222222222",
+                  "type": "requires"
+                },
+                {
+                  "dependsOnId": "c4d5e6f7-a8b9-0123-def0-333333333333",
+                  "type": "requires"
+                }
+              ],
+              "tags": ["middleware", "auth", "express"]
+            },
+            {
+              "id": "c4d5e6f7-a8b9-0123-def0-555555555555",
+              "ticketNumber": 5,
+              "title": "End-to-end authentication integration tests",
+              "description": "Write comprehensive integration tests covering the full authentication flow: registration, login, token refresh, authenticated requests via middleware, and error cases. Depends on all previous tickets being complete.",
+              "status": "pending",
+              "complexity": "large",
+              "priority": "medium",
+              "order": 4,
+              "estimatedHours": 5,
+              "actualHours": 0,
+              "acceptanceCriteria": [
+                "Full registration -> login -> access protected route flow passes",
+                "Token refresh flow works end-to-end",
+                "Expired token is rejected by middleware",
+                "Invalid credentials are rejected at login",
+                "Role-based access control is enforced",
+                "All tests run against test database with proper setup/teardown"
+              ],
+              "implementation": {
+                "steps": [
+                  "Set up test database with migrations",
+                  "Write registration flow test",
+                  "Write login flow test with token validation",
+                  "Write refresh token rotation test",
+                  "Write protected route access test",
+                  "Write role-based authorization test",
+                  "Write error case tests (invalid credentials, expired tokens, missing headers)",
+                  "Add CI pipeline configuration for integration tests"
+                ],
+                "filesToCreate": [
+                  "src/__tests__/auth-integration.test.ts",
+                  "src/__tests__/setup.ts"
+                ],
+                "filesToModify": [
+                  "vitest.config.ts"
+                ]
+              },
+              "dependencies": [
+                {
+                  "dependsOnId": "c4d5e6f7-a8b9-0123-def0-333333333333",
+                  "type": "blocks"
+                },
+                {
+                  "dependsOnId": "c4d5e6f7-a8b9-0123-def0-444444444444",
+                  "type": "blocks"
+                }
+              ],
+              "tags": ["testing", "integration", "e2e"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
