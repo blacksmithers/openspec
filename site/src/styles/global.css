@@ -247,16 +247,35 @@ body {
   background: var(--bg-surface);
   border: 1px solid var(--border);
   padding: 24px;
-  transition: border-color 0.2s;
+  transition: all 0.25s ease;
+  text-decoration: none;
+  color: inherit;
+  display: block;
 }
 
 .overview-card:hover {
-  border-color: var(--border-accent);
+  border-color: var(--purple);
+  background: var(--bg-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.1);
+}
+
+.overview-card:hover .overview-card-icon {
+  transform: scale(1.15);
+}
+
+.overview-card:hover h3 {
+  color: var(--purple);
 }
 
 .overview-card-icon {
   font-size: 18px;
   margin-bottom: 12px;
+  transition: transform 0.25s ease;
+}
+
+.overview-card h3 {
+  transition: color 0.25s ease;
 }
 
 .overview-card h3 {

@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function OverviewPage() {
   return (
     <div className="content">
@@ -50,34 +52,35 @@ export default function OverviewPage() {
       </div>
 
       <div className="overview-grid">
-        <div className="overview-card">
+        <Link href="/schema" className="overview-card">
           <div className="overview-card-icon">⬡</div>
           <h3>Schema Explorer</h3>
           <p>Browse every entity and field in the format with types, requirements, and descriptions.</p>
-        </div>
-        <div className="overview-card">
+        </Link>
+        <Link href="/editor" className="overview-card">
           <div className="overview-card-icon">⌘</div>
           <h3>Live Editor</h3>
           <p>Paste or write a spec file and validate it in real-time against the v1.0 schema.</p>
-        </div>
-        <div className="overview-card">
+        </Link>
+        <Link href="/formats" className="overview-card">
           <div className="overview-card-icon">◈</div>
           <h3>Three Formats</h3>
           <p>JSON for machines, YAML for humans, TOON for LLMs. All lossless representations of one schema.</p>
-        </div>
-        <div className="overview-card">
+        </Link>
+        <Link href="/validator" className="overview-card">
           <div className="overview-card-icon">▸</div>
           <h3>Offline Validator</h3>
           <p>npm package that validates specs locally. Zero auth, zero SaaS dependency.</p>
-        </div>
+        </Link>
       </div>
 
-      <div className="install-block">
-        <div className="install-label">Schema URL (permanent)</div>
-        <div className="install-code" style={{ color: 'var(--cyan)', fontSize: 12 }}>
+      <a href="/schema/v1.0/specforge-schema.json" target="_blank" rel="noopener noreferrer" className="overview-card" style={{ marginBottom: 32 }}>
+        <div className="overview-card-icon" style={{ color: 'var(--cyan)' }}>◇</div>
+        <h3>Schema URL (permanent)</h3>
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--cyan)', marginTop: 4 }}>
           https://schema.specforge.tech/schema/v1.0/specforge-schema.json
-        </div>
-      </div>
+        </p>
+      </a>
     </div>
   );
 }
