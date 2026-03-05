@@ -16,6 +16,7 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="canonical" href="https://schema.specforge.tech/" />
+        <meta name="theme-color" content="#08080a" />
       </head>
       <body>{children}</body>
     </html>
