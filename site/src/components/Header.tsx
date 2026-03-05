@@ -44,7 +44,7 @@ export default function Header() {
         <a className="header-link" href="https://specforge.tech" target="_blank" rel="noopener noreferrer">
           specforge.tech
         </a>
-        <a className="header-link" href="https://github.com/solutionsforge/specforge-spec" target="_blank" rel="noopener noreferrer">
+        <a className="header-link" href="https://github.com/solutionsforge/specforge-schema" target="_blank" rel="noopener noreferrer">
           GitHub
         </a>
         <span className="header-link">RFC</span>

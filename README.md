@@ -10,11 +10,11 @@
   <a href="https://www.npmjs.com/package/@specforge/validator"><img src="https://img.shields.io/npm/v/@specforge/validator?style=flat-square&color=8B5CF6&label=validator" alt="npm" /></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-8B5CF6?style=flat-square" alt="MIT License" /></a>
   <a href="https://schema.specforge.tech"><img src="https://img.shields.io/badge/schema-v1.0-22c55e?style=flat-square" alt="Schema v1.0" /></a>
-  <a href="https://github.com/solutionsforge/specforge-spec/issues?q=label%3Arfc"><img src="https://img.shields.io/github/issues/solutionsforge/specforge-spec/rfc?style=flat-square&color=D946EF&label=open%20RFCs" alt="RFCs" /></a>
+  <a href="https://github.com/solutionsforge/specforge-schema/issues?q=label%3Arfc"><img src="https://img.shields.io/github/issues/solutionsforge/specforge-schema/rfc?style=flat-square&color=D946EF&label=open%20RFCs" alt="RFCs" /></a>
 </p>
 
 <p align="center">
-  <a href="https://schema.specforge.tech">Documentation</a> · <a href="#quickstart">Quickstart</a> · <a href="./CONTRIBUTING.md">Contributing</a> · <a href="./GOVERNANCE.md">Governance</a> · <a href="https://github.com/solutionsforge/specforge-spec/issues?q=label%3Arfc">RFCs</a>
+  <a href="https://schema.specforge.tech">Documentation</a> · <a href="#quickstart">Quickstart</a> · <a href="./CONTRIBUTING.md">Contributing</a> · <a href="./GOVERNANCE.md">Governance</a> · <a href="https://github.com/solutionsforge/specforge-schema/issues?q=label%3Arfc">RFCs</a>
 </p>
 
 ---
@@ -129,7 +129,7 @@ The format follows `MAJOR.MINOR.PATCH` with an RFC-based change process:
 ## Repository Structure
 
 ```
-specforge-spec/
+specforge-schema/
 ├── versions/v1.0/
 │   ├── specforge-schema.json       # source of truth
 │   ├── specforge-schema.yaml       # generated mirror
@@ -149,8 +149,8 @@ There are many ways to help, regardless of whether you use the SpecForge engine:
 
 | Contribution | Where | Process |
 |-------------|-------|---------|
-| **Report a schema bug** (wrong type, missing enum value) | [GitHub Issues](https://github.com/solutionsforge/specforge-spec/issues) | Open an issue with the `bug` label |
-| **Propose a new field or entity** | [GitHub Issues](https://github.com/solutionsforge/specforge-spec/issues) | Open an RFC using the [template](./rfcs/0000-template.md) |
+| **Report a schema bug** (wrong type, missing enum value) | [GitHub Issues](https://github.com/solutionsforge/specforge-schema/issues) | Open an issue with the `bug` label |
+| **Propose a new field or entity** | [GitHub Issues](https://github.com/solutionsforge/specforge-schema/issues) | Open an RFC using the [template](./rfcs/0000-template.md) |
 | **Add an example spec** | `versions/v1.0/examples/` | PR directly |
 | **Improve documentation** | `site/src/` | PR directly |
 | **Build tooling on the format** | Your own repo | Let us know — we'll list it |
@@ -215,6 +215,6 @@ The format is open. The engine is not.
 
 <p align="center">
   <sub>
-    <a href="https://schema.specforge.tech">schema.specforge.tech</a> · <a href="https://specforge.tech">specforge.tech</a> · <a href="https://github.com/solutionsforge/specforge-spec">GitHub</a>
+    <a href="https://schema.specforge.tech">schema.specforge.tech</a> · <a href="https://specforge.tech">specforge.tech</a> · <a href="https://github.com/solutionsforge/specforge-schema">GitHub</a>
   </sub>
 </p>
