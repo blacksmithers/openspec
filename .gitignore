@@ -2,3 +2,4 @@ node_modules/
 dist/
 .astro/
 *.tsbuildinfo
+scripts/deploy.sh
