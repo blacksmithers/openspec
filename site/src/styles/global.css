@@ -270,14 +270,11 @@ body {
 }
 
 .overview-card h3 {
-  transition: color 0.25s ease;
-}
-
-.overview-card h3 {
   font-size: 14px;
   font-weight: 700;
   margin-bottom: 6px;
   letter-spacing: -0.3px;
+  transition: color 0.25s ease;
 }
 
 .overview-card p {
