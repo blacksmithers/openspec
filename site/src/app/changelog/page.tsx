@@ -5,6 +5,9 @@ import ChangelogPage from '@/components/ChangelogPage';
 export const metadata: Metadata = {
   title: 'Changelog — SpecForge Format v1.0',
   description: 'All notable changes to the SpecForge Format specification.',
+  alternates: {
+    canonical: 'https://schema.specforge.tech/changelog/',
+  },
 };
 
 export default function ChangelogRoute() {

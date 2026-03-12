@@ -6,6 +6,9 @@ import LiveEditor from '@/components/LiveEditor';
 export const metadata: Metadata = {
   title: 'Live Editor — SpecForge Format v1.0',
   description: 'Paste or write a SpecForge spec file and validate it in real-time against the v1.0 schema.',
+  alternates: {
+    canonical: 'https://schema.specforge.tech/editor/',
+  },
 };
 
 export default function EditorRoute() {
