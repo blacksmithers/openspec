@@ -4,7 +4,7 @@ import { validate } from '../src/validator/validate';
 describe('valid specs', () => {
   it('accepts minimal spec', () => {
     const result = validate({
-      specforgeVersion: '1.0',
+      openSpecVersion: '1.0',
       project: {
         id: '00000000-0000-0000-0000-000000000001',
         name: 'Test Project',
@@ -15,7 +15,7 @@ describe('valid specs', () => {
 
   it('accepts spec with specifications array', () => {
     const result = validate({
-      specforgeVersion: '1.0',
+      openSpecVersion: '1.0',
       project: {
         id: '00000000-0000-0000-0000-000000000001',
         name: 'Test Project',
@@ -33,7 +33,7 @@ describe('valid specs', () => {
 
   it('accepts spec with epics and tickets', () => {
     const result = validate({
-      specforgeVersion: '1.0',
+      openSpecVersion: '1.0',
       project: {
         id: '00000000-0000-0000-0000-000000000001',
         name: 'Test Project',
@@ -68,7 +68,7 @@ describe('valid specs', () => {
 
   it('accepts spec with blueprint', () => {
     const result = validate({
-      specforgeVersion: '1.0',
+      openSpecVersion: '1.0',
       project: {
         id: '00000000-0000-0000-0000-000000000001',
         name: 'Test Project',
@@ -95,7 +95,7 @@ describe('valid specs', () => {
 
   it('accepts spec with dependencies', () => {
     const result = validate({
-      specforgeVersion: '1.0',
+      openSpecVersion: '1.0',
       project: {
         id: '00000000-0000-0000-0000-000000000001',
         name: 'Test Project',
@@ -134,7 +134,7 @@ describe('valid specs', () => {
 
   it('accepts spec with patterns', () => {
     const result = validate({
-      specforgeVersion: '1.0',
+      openSpecVersion: '1.0',
       project: {
         id: '00000000-0000-0000-0000-000000000001',
         name: 'Test Project',

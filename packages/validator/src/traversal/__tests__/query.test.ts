@@ -2,10 +2,10 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { findTicketById, findTicketByNumber, findByStatus, findByTag } from '../query';
-import type { SpecForgeSpec } from '../../parser/types';
+import type { OpenSpec } from '../../parser/types';
 
-const fixture: SpecForgeSpec = JSON.parse(
-  readFileSync(join(__dirname, '..', '..', '..', '..', '..', 'versions', 'v1.0', 'examples', 'todo-api.sf.json'), 'utf-8')
+const fixture: OpenSpec = JSON.parse(
+  readFileSync(join(__dirname, '..', '..', '..', '..', '..', 'versions', 'v1.0', 'examples', 'todo-api.oschema.json'), 'utf-8')
 );
 
 describe('findTicketById', () => {

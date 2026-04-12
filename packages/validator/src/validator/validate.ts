@@ -1,31 +1,16 @@
+import { readFileSync } from 'fs';
 import { join } from 'path';
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
-import type { SpecForgeSpec, ValidationResult, ValidationError } from '../parser/types';
+import type { OpenSpec, ValidationResult, ValidationError } from '../parser/types';
 import { getTickets } from '../traversal/hierarchy';
-
-// Resolve schema relative to the package root (works from both src/ and dist/)
-const schema = require(join(
-  __dirname,
-  '..',
-  '..',
-  '..',
-  '..',
-  'versions',
-  'v1.0',
-  'specforge-schema.json'
-));
-
-const ajv = new Ajv({ allErrors: true });
-addFormats(ajv);
-const validateFn = ajv.compile(schema);
 
 export const currentVersion = '1.0';
 
 function buildHint(instancePath: string, message: string, spec: unknown): string | undefined {
   // Status "blocked" hint
   if (instancePath.includes('/status') && message.includes('blocked')) {
-    return 'Blocked state is inferred from the dependency graph, not stored as an explicit status. See: schema.specforge.tech/why#status-that-shouldnt-exist';
+    return 'Blocked state is inferred from the dependency graph, not stored as an explicit status. See: openspec.tech/why#status-that-shouldnt-exist';
   }
 
   // Invalid dependency type hint
@@ -44,7 +29,7 @@ function buildHint(instancePath: string, message: string, spec: unknown): string
   return undefined;
 }
 
-function validateDependencyReferences(spec: SpecForgeSpec): ValidationError[] {
+function validateDependencyReferences(spec: OpenSpec): ValidationError[] {
   const errors: ValidationError[] = [];
   const tickets = getTickets(spec);
   const allTicketIds = new Set(tickets.map((t) => t.id));
@@ -64,7 +49,15 @@ function validateDependencyReferences(spec: SpecForgeSpec): ValidationError[] {
   return errors;
 }
 
-export function validate(spec: unknown): ValidationResult {
+/**
+ * Browser-safe validation: validates a spec against a provided schema object.
+ * Does NOT use any Node.js APIs (no require, no fs, no path).
+ */
+export function validateWithSchema(spec: unknown, schema: object): ValidationResult {
+  const ajv = new Ajv({ allErrors: true });
+  addFormats(ajv);
+  const validateFn = ajv.compile(schema);
+
   const valid = validateFn(spec);
 
   const errors: ValidationError[] = [];
@@ -81,14 +74,14 @@ export function validate(spec: unknown): ValidationResult {
 
   // Custom validation: check dependency references
   if (valid || errors.length === 0) {
-    const depErrors = validateDependencyReferences(spec as SpecForgeSpec);
+    const depErrors = validateDependencyReferences(spec as OpenSpec);
     if (depErrors.length > 0) {
       return { valid: false, errors: depErrors };
     }
   } else {
     // Still run dependency checks even if schema invalid, but only if it's parseable enough
     try {
-      const depErrors = validateDependencyReferences(spec as SpecForgeSpec);
+      const depErrors = validateDependencyReferences(spec as OpenSpec);
       errors.push(...depErrors);
     } catch {
       // Spec too malformed for dependency checking
@@ -100,4 +93,14 @@ export function validate(spec: unknown): ValidationResult {
   }
 
   return { valid: true, errors: [] };
+}
+
+/**
+ * Node.js-only validation: loads the schema from disk and validates.
+ */
+export function validate(spec: unknown): ValidationResult {
+  const schema = JSON.parse(
+    readFileSync(join(__dirname, '..', '..', '..', '..', 'versions', 'v1.0', 'openspec-schema.json'), 'utf-8')
+  );
+  return validateWithSchema(spec, schema);
 }

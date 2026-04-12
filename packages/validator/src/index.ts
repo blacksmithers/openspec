@@ -4,7 +4,7 @@ export { toJson, toYaml, toToon } from './parser/convert';
 
 // Types
 export type {
-  SpecForgeSpec,
+  OpenSpec,
   Project,
   Specification,
   Epic,
@@ -22,7 +22,7 @@ export type {
 export type { SpecFormat } from './parser/detect';
 
 // Validation
-export { validate } from './validator/validate';
+export { validate, validateWithSchema } from './validator/validate';
 export { currentVersion } from './validator/validate';
 
 // Traversal

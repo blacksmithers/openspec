@@ -1,7 +1,7 @@
-import type { SpecForgeSpec, Ticket } from '../parser/types';
+import type { OpenSpec, Ticket } from '../parser/types';
 import { getTickets } from './hierarchy';
 
-export function getAllTicketsMap(spec: SpecForgeSpec): Map<string, Ticket> {
+export function getAllTicketsMap(spec: OpenSpec): Map<string, Ticket> {
   const map = new Map<string, Ticket>();
   for (const ticket of getTickets(spec)) {
     map.set(ticket.id, ticket);
@@ -9,7 +9,7 @@ export function getAllTicketsMap(spec: SpecForgeSpec): Map<string, Ticket> {
   return map;
 }
 
-export function resolveDependencyGraph(spec: SpecForgeSpec): {
+export function resolveDependencyGraph(spec: OpenSpec): {
   nodes: Map<string, Ticket>;
   edges: { from: string; to: string; type: 'blocks' | 'requires' }[];
 } {
@@ -23,7 +23,7 @@ export function resolveDependencyGraph(spec: SpecForgeSpec): {
   return { nodes, edges };
 }
 
-export function getReadyTickets(spec: SpecForgeSpec): Ticket[] {
+export function getReadyTickets(spec: OpenSpec): Ticket[] {
   const map = getAllTicketsMap(spec);
   return [...map.values()].filter((ticket) => {
     if (ticket.status !== 'pending' && ticket.status !== 'ready') return false;
@@ -34,7 +34,7 @@ export function getReadyTickets(spec: SpecForgeSpec): Ticket[] {
   });
 }
 
-export function getBlockedTickets(spec: SpecForgeSpec): Ticket[] {
+export function getBlockedTickets(spec: OpenSpec): Ticket[] {
   const map = getAllTicketsMap(spec);
   return [...map.values()].filter((ticket) => {
     const blockDeps = (ticket.dependencies ?? []).filter(
@@ -48,7 +48,7 @@ export function getBlockedTickets(spec: SpecForgeSpec): Ticket[] {
   });
 }
 
-export function getExecutionWaves(spec: SpecForgeSpec): Ticket[][] {
+export function getExecutionWaves(spec: OpenSpec): Ticket[][] {
   const map = getAllTicketsMap(spec);
   const tickets = [...map.values()];
   const done = new Set<string>();

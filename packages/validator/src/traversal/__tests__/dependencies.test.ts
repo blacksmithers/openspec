@@ -8,14 +8,14 @@ import {
   getExecutionWaves,
   resolveDependencyGraph,
 } from '../dependencies';
-import type { SpecForgeSpec } from '../../parser/types';
+import type { OpenSpec } from '../../parser/types';
 
-const fixture: SpecForgeSpec = JSON.parse(
-  readFileSync(join(__dirname, '..', '..', '..', '..', '..', 'versions', 'v1.0', 'examples', 'todo-api.sf.json'), 'utf-8')
+const fixture: OpenSpec = JSON.parse(
+  readFileSync(join(__dirname, '..', '..', '..', '..', '..', 'versions', 'v1.0', 'examples', 'todo-api.oschema.json'), 'utf-8')
 );
 
-const noDepsSpec: SpecForgeSpec = {
-  specforgeVersion: '1.0',
+const noDepsSpec: OpenSpec = {
+  openSpecVersion: '1.0',
   project: { id: '00000000-0000-0000-0000-000000000001', name: 'no-deps' },
   specifications: [{
     id: '00000000-0000-0000-0000-000000000010',
@@ -31,8 +31,8 @@ const noDepsSpec: SpecForgeSpec = {
   }],
 };
 
-const allDoneSpec: SpecForgeSpec = {
-  specforgeVersion: '1.0',
+const allDoneSpec: OpenSpec = {
+  openSpecVersion: '1.0',
   project: { id: '00000000-0000-0000-0000-000000000001', name: 'all-done' },
   specifications: [{
     id: '00000000-0000-0000-0000-000000000010',

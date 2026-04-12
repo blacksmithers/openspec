@@ -1,5 +1,5 @@
-export interface SpecForgeSpec {
-  specforgeVersion: string;
+export interface OpenSpec {
+  openSpecVersion: string;
   project: Project;
   specifications?: Specification[];
 }

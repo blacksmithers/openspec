@@ -10,22 +10,22 @@ describe('invalid specs', () => {
   });
 
   it('rejects missing project', () => {
-    const result = validate({ specforgeVersion: '1.0' });
+    const result = validate({ openSpecVersion: '1.0' });
     expect(result.valid).toBe(false);
     expect(result.errors.some((e) => e.path.includes('project') || e.message.includes('project'))).toBe(true);
   });
 
-  it('rejects missing specforgeVersion', () => {
+  it('rejects missing openSpecVersion', () => {
     const result = validate({
       project: { id: '00000000-0000-0000-0000-000000000001', name: 'Test' },
     });
     expect(result.valid).toBe(false);
-    expect(result.errors.some((e) => e.path.includes('specforgeVersion') || e.message.includes('specforgeVersion'))).toBe(true);
+    expect(result.errors.some((e) => e.path.includes('openSpecVersion') || e.message.includes('openSpecVersion'))).toBe(true);
   });
 
-  it('rejects invalid specforgeVersion', () => {
+  it('rejects invalid openSpecVersion', () => {
     const result = validate({
-      specforgeVersion: '2.0',
+      openSpecVersion: '2.0',
       project: { id: '00000000-0000-0000-0000-000000000001', name: 'Test' },
     });
     expect(result.valid).toBe(false);
@@ -33,7 +33,7 @@ describe('invalid specs', () => {
 
   it('rejects invalid project id format', () => {
     const result = validate({
-      specforgeVersion: '1.0',
+      openSpecVersion: '1.0',
       project: { id: 'not-a-uuid', name: 'Test' },
     });
     expect(result.valid).toBe(false);
@@ -41,7 +41,7 @@ describe('invalid specs', () => {
 
   it('rejects missing project name', () => {
     const result = validate({
-      specforgeVersion: '1.0',
+      openSpecVersion: '1.0',
       project: { id: '00000000-0000-0000-0000-000000000001' },
     });
     expect(result.valid).toBe(false);
@@ -49,7 +49,7 @@ describe('invalid specs', () => {
 
   it('rejects invalid specification status', () => {
     const result = validate({
-      specforgeVersion: '1.0',
+      openSpecVersion: '1.0',
       project: { id: '00000000-0000-0000-0000-000000000001', name: 'Test' },
       specifications: [
         { id: '00000000-0000-0000-0000-000000000002', title: 'Spec', status: 'invalid_status' },
@@ -60,7 +60,7 @@ describe('invalid specs', () => {
 
   it('rejects invalid ticket complexity', () => {
     const result = validate({
-      specforgeVersion: '1.0',
+      openSpecVersion: '1.0',
       project: { id: '00000000-0000-0000-0000-000000000001', name: 'Test' },
       specifications: [
         {
@@ -87,7 +87,7 @@ describe('invalid specs', () => {
 
   it('rejects invalid dependency type', () => {
     const result = validate({
-      specforgeVersion: '1.0',
+      openSpecVersion: '1.0',
       project: { id: '00000000-0000-0000-0000-000000000001', name: 'Test' },
       specifications: [
         {
@@ -116,7 +116,7 @@ describe('invalid specs', () => {
 
   it('rejects invalid blueprint category', () => {
     const result = validate({
-      specforgeVersion: '1.0',
+      openSpecVersion: '1.0',
       project: { id: '00000000-0000-0000-0000-000000000001', name: 'Test' },
       specifications: [
         {
@@ -138,7 +138,7 @@ describe('invalid specs', () => {
 
   it('rejects negative estimatedHours', () => {
     const result = validate({
-      specforgeVersion: '1.0',
+      openSpecVersion: '1.0',
       project: { id: '00000000-0000-0000-0000-000000000001', name: 'Test' },
       specifications: [
         {

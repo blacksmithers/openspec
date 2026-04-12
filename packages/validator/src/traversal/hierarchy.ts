@@ -1,17 +1,17 @@
-import type { SpecForgeSpec, Specification, Epic, Ticket, Blueprint } from '../parser/types';
+import type { OpenSpec, Specification, Epic, Ticket, Blueprint } from '../parser/types';
 
-export function getSpecifications(spec: SpecForgeSpec): Specification[] {
+export function getSpecifications(spec: OpenSpec): Specification[] {
   return spec.specifications ?? [];
 }
 
-export function getEpics(spec: SpecForgeSpec): Epic[] {
+export function getEpics(spec: OpenSpec): Epic[] {
   return (spec.specifications ?? []).flatMap((s) => s.epics ?? []);
 }
 
-export function getTickets(spec: SpecForgeSpec): Ticket[] {
+export function getTickets(spec: OpenSpec): Ticket[] {
   return getEpics(spec).flatMap((e) => e.tickets ?? []);
 }
 
-export function getBlueprints(spec: SpecForgeSpec): Blueprint[] {
+export function getBlueprints(spec: OpenSpec): Blueprint[] {
   return (spec.specifications ?? []).flatMap((s) => s.blueprints ?? []);
 }

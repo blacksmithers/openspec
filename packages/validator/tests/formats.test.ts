@@ -2,10 +2,10 @@ import { describe, it, expect } from 'vitest';
 import { detectFormat } from '../src/parser/detect';
 import { parse } from '../src/parser/parse';
 import { toJson, toYaml } from '../src/parser/convert';
-import type { SpecForgeSpec } from '../src/parser/types';
+import type { OpenSpec } from '../src/parser/types';
 
-const minimal: SpecForgeSpec = {
-  specforgeVersion: '1.0',
+const minimal: OpenSpec = {
+  openSpecVersion: '1.0',
   project: {
     id: '00000000-0000-0000-0000-000000000001',
     name: 'Test Project',
@@ -14,11 +14,11 @@ const minimal: SpecForgeSpec = {
 
 describe('detectFormat', () => {
   it('detects JSON', () => {
-    expect(detectFormat('{"specforgeVersion": "1.0"}')).toBe('json');
+    expect(detectFormat('{"openSpecVersion": "1.0"}')).toBe('json');
   });
 
   it('detects JSON with leading whitespace', () => {
-    expect(detectFormat('  \n  {"specforgeVersion": "1.0"}')).toBe('json');
+    expect(detectFormat('  \n  {"openSpecVersion": "1.0"}')).toBe('json');
   });
 
   it('detects JSON arrays', () => {
@@ -26,7 +26,7 @@ describe('detectFormat', () => {
   });
 
   it('detects YAML', () => {
-    expect(detectFormat('specforgeVersion: "1.0"\nproject:\n  id: abc')).toBe('yaml');
+    expect(detectFormat('openSpecVersion: "1.0"\nproject:\n  id: abc')).toBe('yaml');
   });
 });
 
@@ -54,7 +54,7 @@ describe('parse', () => {
   });
 
   it('parses YAML string', () => {
-    const yaml = 'specforgeVersion: "1.0"\nproject:\n  id: "00000000-0000-0000-0000-000000000001"\n  name: Test Project\n';
+    const yaml = 'openSpecVersion: "1.0"\nproject:\n  id: "00000000-0000-0000-0000-000000000001"\n  name: Test Project\n';
     const result = parse(yaml, 'yaml');
     expect(result).toEqual(minimal);
   });
