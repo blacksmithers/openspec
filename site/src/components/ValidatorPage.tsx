@@ -9,9 +9,9 @@ export default function ValidatorPage() {
 
       <div className="terminal-block">
         <div className="terminal-header">
-          <span className="terminal-dot" style={{ background: '#ef4444' }} />
-          <span className="terminal-dot" style={{ background: '#f59e0b' }} />
-          <span className="terminal-dot" style={{ background: '#22c55e' }} />
+          <span className="terminal-dot" style={{ background: 'var(--red)' }} />
+          <span className="terminal-dot" style={{ background: 'var(--amber)' }} />
+          <span className="terminal-dot" style={{ background: 'var(--green)' }} />
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-dim)', marginLeft: 8 }}>terminal</span>
         </div>
         <div className="terminal-body">

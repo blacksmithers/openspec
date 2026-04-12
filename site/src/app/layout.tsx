@@ -17,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/openspec-favicon.svg" type="image/svg+xml" />
         <meta name="theme-color" content="#08080a" />
       </head>
       <body>{children}</body>
