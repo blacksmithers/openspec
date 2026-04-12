@@ -1,12 +1,12 @@
 # Governance
 
-This document describes the governance model for the SpecForge Specification Format (SFF).
+This document describes the governance model for the OpenSpec Format.
 It is modeled after the [OpenAPI Initiative](https://www.openapis.org/) governance structure,
 adapted for a specification maintained by Solutions Forge LTDA with open community participation.
 
 ## Guiding Principles
 
-All changes to the SpecForge Format are evaluated against these principles, in order of priority:
+All changes to the OpenSpec Format are evaluated against these principles, in order of priority:
 
 1. **Stability above features.** Existing spec files must not break silently. Every consumer
    of the format -- human or agent -- should be able to trust that a valid v1.0 file today
@@ -54,7 +54,7 @@ All changes to the SpecForge Format are evaluated against these principles, in o
 - **Additional requirements:**
   - A migration guide must be included in the RFC or accompanying PR.
   - All breaking changes must be logged in `CHANGELOG.md`.
-  - The `@specforge/validator` must ship a new version that supports both the old
+  - The `@blacksmithers/openspec` must ship a new version that supports both the old
     and new schema for at least one release cycle.
 - **Approval:** Merged after the RFC is marked `rfc: accepted` by a maintainer.
 - **Examples:** Remove the `patterns` field, rename `dependsOnId` to `targetId`,
@@ -77,7 +77,7 @@ All changes to the SpecForge Format are evaluated against these principles, in o
 
 4. **Implementation.** For accepted RFCs, the author (or a maintainer) opens a Pull
    Request implementing the schema change. The PR must include:
-   - Updated JSON Schema in `versions/vX.Y/specforge-schema.json`
+   - Updated JSON Schema in `versions/vX.Y/openspec-schema.json`
    - Updated examples if existing examples are affected
    - Updated CHANGELOG.md entry
    - Migration guide (Major changes only)
@@ -88,7 +88,7 @@ All changes to the SpecForge Format are evaluated against these principles, in o
 
 ## Maintainers
 
-The current maintainers of the SpecForge Specification Format are members of
+The current maintainers of the OpenSpec Format are members of
 Solutions Forge LTDA engineering team. Maintainer status may be extended to
 external contributors who have demonstrated sustained, high-quality contributions
 to the specification.
@@ -112,5 +112,5 @@ engineering lead.
 
 ## Code of Conduct
 
-All participants in the SpecForge community are expected to follow the
+All participants in the OpenSpec community are expected to follow the
 [Contributor Covenant Code of Conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/).

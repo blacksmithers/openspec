@@ -1,13 +1,13 @@
-# RFC 0001: Initial SpecForge Format v1.0
+# RFC 0001: Initial OpenSpec Format v1.0
 
 - **Status:** Accepted
-- **Author:** Solutions Forge <engineering@solutionsforge.com>
+- **Author:** Solutions Forge <schema@solutionsforge.tech>
 - **Created:** 2025-03-05
 - **Tier:** Major
 
 ## Summary
 
-This RFC documents the initial design of the SpecForge Specification Format (SFF) v1.0.
+This RFC documents the initial design of the OpenSpec Format v1.0.
 It establishes the core schema, entity hierarchy, dependency model, and serialization
 formats that form the foundation of the specification. This is a retroactive RFC that
 records the design decisions made during the creation of v1.0.
@@ -21,7 +21,7 @@ approaches are either proprietary (locked to a specific engine), too granular (i
 prompts without structure), or too abstract (project management tools that lack the
 metadata agents need).
 
-SpecForge Format fills this gap: a portable, versionable file format that encodes the
+OpenSpec Format fills this gap: a portable, versionable file format that encodes the
 full decomposition of a software project with enough metadata for any compliant agent
 to execute it.
 
@@ -46,12 +46,12 @@ A flat model was considered and rejected because it forces either (a) every task
 carry the full context of its parent scope, inflating token cost, or (b) a separate
 context-injection mechanism, adding complexity.
 
-### 2. specforgeVersion at Root
+### 2. openSpecVersion at Root
 
-**Decision:** The `specforgeVersion` field is required at the root of every spec file.
+**Decision:** The `openSpecVersion` field is required at the root of every spec file.
 
 **Rationale:** This is the single field that makes tooling interoperable. Any tool that
-encounters a spec file can read `specforgeVersion` to determine which schema to validate
+encounters a spec file can read `openSpecVersion` to determine which schema to validate
 against, which fields to expect, and which features are available.
 
 Without a version field, tools must guess the schema version from the presence or absence
@@ -158,10 +158,10 @@ Two additional states were considered and rejected:
 
 ### 7. TOON as a First-Class Format
 
-**Decision:** TOON (`.sf.toon`) is a supported format alongside JSON and YAML from
+**Decision:** TOON (`.oschema.toon`) is a supported format alongside JSON and YAML from
 day one, not a later addition.
 
-**Rationale:** SpecForge Format is designed to be consumed by LLM agents. Token
+**Rationale:** OpenSpec Format is designed to be consumed by LLM agents. Token
 efficiency directly impacts cost and context window utilization. TOON achieves 39.9%
 fewer tokens than equivalent JSON for the same semantic content.
 
@@ -173,12 +173,12 @@ If TOON were added later as an afterthought:
 
 By treating TOON as a first-class format from v1.0, the schema, validator, and
 documentation are designed from the start to support all three formats equally.
-The `@specforge/validator` package accepts JSON, YAML, and TOON with the same
+The `@blacksmithers/openspec` package accepts JSON, YAML, and TOON with the same
 validation logic and the same error messages.
 
 ### 8. What Was Intentionally Left Out
 
-The following concepts exist in the SpecForge engine but were deliberately excluded
+The following concepts exist in the OpenSpec engine but were deliberately excluded
 from the v1.0 format:
 
 - **WorkSession.** Sessions are an engine concept representing a single agent

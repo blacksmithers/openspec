@@ -1,6 +1,6 @@
-# Contributing to SpecForge Format
+# Contributing to OpenSpec Format
 
-Thank you for your interest in contributing to the SpecForge Specification Format (SFF).
+Thank you for your interest in contributing to the OpenSpec Format.
 This document explains how to contribute effectively.
 
 ## How to Open an RFC
@@ -25,7 +25,7 @@ Example spec files live in `versions/v1.0/examples/`. To add or improve examples
 2. Add or modify files in `versions/v1.0/examples/`.
 3. Ensure your example validates against the schema:
    ```bash
-   npx @specforge/validator ./versions/v1.0/examples/your-example.sf.json
+   npx @blacksmithers/openspec ./versions/v1.0/examples/your-example.oschema.json
    ```
 4. Open a Pull Request with a clear description of what the example demonstrates.
 
@@ -57,7 +57,7 @@ a valid spec file is rejected (or an invalid one accepted) by the validator:
 
 ## What NOT to Submit
 
-The SpecForge Format is deliberately minimal and engine-agnostic. The following
+The OpenSpec Format is deliberately minimal and engine-agnostic. The following
 types of changes will be declined:
 
 - **Engine-internal fields.** Fields that only make sense in the context of a
@@ -91,12 +91,12 @@ Examples:
 
 ## Build Tooling on the Format
 
-The format is MIT-licensed and intentionally decoupled from any engine. You are
+The format is Apache 2.0-licensed and intentionally decoupled from any engine. You are
 encouraged to build your own tools on top of it:
 
 - **Validators** in any language (the JSON Schema is the source of truth)
-- **Converters** between SFF and your own task/ticket formats (Jira, Linear, GitHub Issues)
-- **Generators** that produce `.sf.json` from natural language, PRDs, or existing codebases
+- **Converters** between OpenSpec and your own task/ticket formats (Jira, Linear, GitHub Issues)
+- **Generators** that produce `.oschema.json` from natural language, PRDs, or existing codebases
 - **Visualizers** that render the dependency graph
 - **Executors** that consume specs and drive your own agents
 
@@ -107,4 +107,4 @@ tooling list in the README and will add your project to it.
 
 This project follows the [Contributor Covenant Code of Conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/).
 By participating, you are expected to uphold this code. Please report unacceptable
-behavior to engineering@solutionsforge.com.
+behavior to schema@solutionsforge.tech.
