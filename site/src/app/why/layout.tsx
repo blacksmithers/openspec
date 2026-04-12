@@ -14,6 +14,7 @@ export const metadata: Metadata = {
     url: 'https://schema.specforge.tech/why/',
     siteName: 'SpecForge Format',
     type: 'article',
+    images: [{ url: '/openspec-og-image.png' }],
   },
   twitter: {
     card: 'summary_large_image',

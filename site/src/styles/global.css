@@ -62,17 +62,6 @@ body {
   gap: 16px;
 }
 
-.header-badge {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  color: var(--accent);
-  background: var(--accent-dim);
-  padding: 3px 8px;
-  border: 1px solid rgba(194,168,120,0.2);
-}
-
 .header-right {
   display: flex;
   align-items: center;
