@@ -1,14 +1,14 @@
 import { stringify as stringifyYaml } from 'yaml';
-import type { SpecForgeSpec } from './types';
+import type { OpenSpec } from './types';
 
-export function toJson(spec: SpecForgeSpec): string {
+export function toJson(spec: OpenSpec): string {
   return JSON.stringify(spec, null, 2);
 }
 
-export function toYaml(spec: SpecForgeSpec): string {
+export function toYaml(spec: OpenSpec): string {
   return stringifyYaml(spec);
 }
 
-export function toToon(_spec: SpecForgeSpec): string {
+export function toToon(_spec: OpenSpec): string {
   throw new Error('TOON format requires @toon-format/toon package.');
 }

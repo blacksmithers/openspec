@@ -14,7 +14,7 @@ import {
 
 const filePath = process.argv[2];
 if (!filePath) {
-  console.error('Usage: specforge-validate <spec-file.[json|yaml|toon]>');
+  console.error('Usage: openspec <spec-file.[json|yaml|toon]>');
   process.exit(1);
 }
 
@@ -57,7 +57,7 @@ if (result.valid) {
   }
 
   console.log(
-    `\u2713 Valid SpecForge spec (v${parsed.specforgeVersion}) \u2014 ${format}`
+    `\u2713 Valid OpenSpec (v${parsed.openSpecVersion}) \u2014 ${format}`
   );
   console.log('');
   console.log(`  Project:        ${parsed.project.name}`);

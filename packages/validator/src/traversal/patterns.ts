@@ -1,7 +1,7 @@
-import type { SpecForgeSpec, Patterns } from '../parser/types';
+import type { OpenSpec, Patterns } from '../parser/types';
 
 export function resolvePatterns(
-  spec: SpecForgeSpec,
+  spec: OpenSpec,
   ticketId: string
 ): Patterns | null {
   for (const s of spec.specifications ?? []) {

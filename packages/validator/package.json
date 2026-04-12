@@ -1,12 +1,12 @@
 {
-  "name": "@specforge/validator",
+  "name": "@blacksmithers/openspec",
   "version": "1.0.0",
-  "description": "Standalone offline validator for the SpecForge Specification Format. Supports JSON, YAML, and TOON.",
-  "license": "MIT",
+  "description": "Standalone offline validator for the OpenSpec Format. Supports JSON, YAML, and TOON.",
+  "license": "Apache-2.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "specforge-validate": "./dist/cli/index.js"
+    "openspec": "./dist/cli/index.js"
   },
   "exports": {
     ".": {
