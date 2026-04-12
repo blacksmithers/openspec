@@ -1,15 +1,15 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://schema.specforge.tech/schema/v1.0/specforge-schema.json",
-  "title": "SpecForge Specification Format",
+  "$id": "https://openspec.tech/schema/v1.0/openspec-schema.json",
+  "title": "OpenSpec Format",
   "description": "Open standard for AI agent orchestration specifications. Version 1.0.",
   "type": "object",
-  "required": ["specforgeVersion", "project"],
+  "required": ["openSpecVersion", "project"],
   "properties": {
-    "specforgeVersion": {
+    "openSpecVersion": {
       "type": "string",
       "enum": ["1.0"],
-      "description": "SpecForge format version. Must match a published version at schema.specforge.tech."
+      "description": "OpenSpec format version. Must match a published version at openspec.tech."
     },
     "project": { "$ref": "#/definitions/Project" },
     "specifications": {
