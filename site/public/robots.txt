@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://schema.specforge.tech/sitemap.xml
+Sitemap: https://openspec.tech/sitemap.xml
