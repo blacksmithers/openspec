@@ -823,7 +823,7 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   /why/ page styles — schema.specforge.tech
+   /why/ page styles — openspec.tech
    
    Design language: dark terminal aesthetic with purple gradient accents.
    Inherits from existing site CSS variables:
@@ -1437,7 +1437,7 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   /getting-started/ styles — schema.specforge.tech
+   /getting-started/ styles — openspec.tech
    Covers: landing, first-spec, validate, integrate
    ═══════════════════════════════════════════════════════════════════════════ */
 
@@ -2051,7 +2051,7 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Overview page additions — schema.specforge.tech
+   Overview page additions — openspec.tech
    These styles ADD to the existing overview styles. Do not replace.
    ═══════════════════════════════════════════════════════════════════════════ */
 

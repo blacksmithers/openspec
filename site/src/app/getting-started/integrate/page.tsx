@@ -15,36 +15,42 @@ export default function IntegratePage() {
 
         <h1>Use It Programmatically</h1>
         <p className="gs-page-lead">
-          Parse, validate, traverse, and convert specs in code. The SDK gives
-          you typed access to everything in the spec.
+          Parse, validate, traverse, and convert specs in code. The{' '}
+          <code>@blacksmithers/openspec</code> package gives you typed access to
+          everything in the spec.
         </p>
 
         <div className="gs-section">
           <h2>Install as a dependency</h2>
           <p>
-            Add the SDK to your project:
+            Add the package to your project:
           </p>
-          <pre className="gs-code gs-code-terminal"><span className="gs-prompt">$ </span>npm install @specforge/sdk</pre>
+          <pre className="gs-code gs-code-terminal"><span className="gs-prompt">$ </span>npm install @blacksmithers/openspec</pre>
+          <p>
+            The CLI is also available globally:
+          </p>
+          <pre className="gs-code gs-code-terminal"><span className="gs-prompt">$ </span>npm install -g @blacksmithers/openspec</pre>
         </div>
 
         <div className="gs-section">
           <h2>Parse any format</h2>
           <p>
-            The SDK handles JSON, YAML, and TOML. You get back a typed object
-            regardless of the source format:
+            The parser handles JSON, YAML, and TOON. You get back a typed{' '}
+            <code>OpenSpec</code> object regardless of the source format:
           </p>
-          <pre className="gs-code">{`import { parse } from '@specforge/sdk';
+          <pre className="gs-code">{`import { parse, detectFormat, toJson, toYaml, toToon } from '@blacksmithers/openspec';
 
-// Auto-detects format from extension
-const spec = await parse('./todo-api.sf.json');
+// Parse a string — auto-detects format
+const spec = parse(fileContents);
 
-// Or parse a string directly
-const spec2 = parse.json(jsonString);
-const spec3 = parse.yaml(yamlString);
-const spec4 = parse.toml(tomlString);
+// Detect which format a string is in
+const format = detectFormat(fileContents);
+// 'json' | 'yaml' | 'toon'
 
-console.log(spec.project.name); // "todo-api"
-console.log(spec.specforge);    // "1.0"`}</pre>
+// Convert a parsed spec back to any format
+const json = toJson(spec);
+const yaml = toYaml(spec);
+const toon = toToon(spec);`}</pre>
         </div>
 
         <div className="gs-section">
@@ -52,7 +58,7 @@ console.log(spec.specforge);    // "1.0"`}</pre>
           <p>
             Programmatic validation returns structured results you can act on:
           </p>
-          <pre className="gs-code">{`import { validate } from '@specforge/sdk';
+          <pre className="gs-code">{`import { validate, validateWithSchema } from '@blacksmithers/openspec';
 
 const result = validate(spec);
 
@@ -65,90 +71,128 @@ if (result.valid) {
   }
 }
 
-// Check specific aspects
-const deps = validate.dependencies(spec);
-// { acyclic: true, danglingRefs: [], unreachable: [] }`}</pre>
+// Validate against a specific schema version
+const schemaResult = validateWithSchema(spec, schemaObject);`}</pre>
+          <p>
+            The <code>ValidationResult</code> type gives you <code>valid</code>,{' '}
+            <code>errors</code>, and <code>warnings</code> — all fully typed.
+          </p>
         </div>
 
         <div className="gs-section">
           <h2>Traverse the hierarchy</h2>
           <p>
-            Walk specs, epics, and tickets without manual nesting:
+            Walk specs, epics, tickets, and blueprints without manual nesting:
           </p>
-          <pre className="gs-code">{`import { traverse } from '@specforge/sdk';
+          <pre className="gs-code">{`import {
+  getSpecifications,
+  getEpics,
+  getTickets,
+  getBlueprints,
+  getAllTicketsMap,
+  findTicketById,
+  findTicketByNumber,
+  findByStatus,
+  findByTag,
+} from '@blacksmithers/openspec';
 
-// Visit every ticket in the spec
-traverse.tickets(spec, (ticket, epic, specification) => {
-  console.log(\`[\${specification.id}] [\${epic.id}] \${ticket.title}\`);
-  // [spec-todo-api] [epic-core] POST /todos
-  // [spec-todo-api] [epic-core] GET /todos
-  // [spec-todo-api] [epic-core] DELETE /todos/:id
-});
+// Get all specifications from a parsed spec
+const specifications = getSpecifications(spec);
 
-// Find a ticket by ID across all specs and epics
-const ticket = traverse.findTicket(spec, 'ticket-create-todo');
+// Get all epics across specifications
+const epics = getEpics(spec);
 
-// Get all tickets matching a filter
-const open = traverse.filterTickets(spec, t => t.status === 'open');`}</pre>
+// Get all tickets across all epics and specifications
+const tickets = getTickets(spec);
+
+// Get all blueprints
+const blueprints = getBlueprints(spec);
+
+// Build a map of ticketId → Ticket for fast lookups
+const ticketMap = getAllTicketsMap(spec);
+
+// Find a specific ticket by ID or number
+const ticket = findTicketById(spec, 'ticket-create-todo');
+const ticketByNum = findTicketByNumber(spec, 42);
+
+// Filter tickets by status or tag
+const openTickets = findByStatus(spec, 'open');
+const apiTickets = findByTag(spec, 'api');`}</pre>
         </div>
 
         <div className="gs-section">
           <h2>Resolve the dependency graph</h2>
           <p>
             Build a dependency graph and query it for actionable tickets,
-            blocked tickets, or the critical path:
+            blocked tickets, or execution waves:
           </p>
-          <pre className="gs-code">{`import { graph } from '@specforge/sdk';
+          <pre className="gs-code">{`import {
+  resolveDependencyGraph,
+  getReadyTickets,
+  getBlockedTickets,
+  getExecutionWaves,
+  resolvePatterns,
+} from '@blacksmithers/openspec';
 
-const g = graph.build(spec);
+// Build the full dependency graph
+const graph = resolveDependencyGraph(spec);
 
 // What can be worked on right now?
-const actionable = g.actionable();
+const ready = getReadyTickets(spec);
 // [{ id: 'ticket-create-todo', ... }]
 
 // What is blocked and why?
-const blocked = g.blocked();
+const blocked = getBlockedTickets(spec);
 // [{ id: 'ticket-list-todos', blockedBy: ['ticket-create-todo'] }, ...]
 
-// Topological order for sequential execution
-const order = g.topologicalSort();
-// ['ticket-create-todo', 'ticket-list-todos', 'ticket-delete-todo']
+// Get execution waves — groups of tickets that can run in parallel
+const waves = getExecutionWaves(spec);
+// [[ticket-create-todo], [ticket-list-todos, ticket-delete-todo]]
 
-// Critical path (longest chain)
-const critical = g.criticalPath();
-// ['ticket-create-todo', 'ticket-list-todos']`}</pre>
+// Resolve inherited patterns for a specification
+const patterns = resolvePatterns(spec, 'spec-todo-api');`}</pre>
         </div>
 
         <div className="gs-section">
-          <h2>Convert between formats</h2>
+          <h2>Types</h2>
           <p>
-            Convert specs between JSON, YAML, and TOML:
+            All core types are exported for use in your own tools:
           </p>
-          <pre className="gs-code">{`import { convert } from '@specforge/sdk';
+          <pre className="gs-code">{`import type {
+  OpenSpec,
+  Project,
+  Specification,
+  Epic,
+  Ticket,
+  Blueprint,
+  Patterns,
+  ValidationResult,
+} from '@blacksmithers/openspec';
 
-// JSON → YAML
-const yaml = convert.toYaml(spec);
+// Full type safety when working with specs
+function processTicket(ticket: Ticket): void {
+  console.log(ticket.id, ticket.title, ticket.status);
+}
 
-// JSON → TOML
-const toml = convert.toToml(spec);
-
-// Write to file (auto-detects from extension)
-await convert.toFile(spec, './todo-api.sf.yaml');`}</pre>
+function buildDashboard(spec: OpenSpec): void {
+  const project: Project = spec.project;
+  const specifications: Specification[] = spec.specifications;
+  // ...
+}`}</pre>
         </div>
 
         <div className="gs-section">
           <h2>What you can build</h2>
           <p>
-            SpecForge is an open format. Here are some things people are building
-            with the SDK:
+            OpenSpec is an open format. Here are some things people are building
+            with the library:
           </p>
           <div className="gs-build-grid">
             <div className="gs-build-card">
               <h3>Agent Orchestrators</h3>
               <p>
                 Feed the dependency graph to an agent scheduler. Each agent picks
-                up actionable tickets, marks them done, and unblocks the next
-                wave.
+                up ready tickets, marks them done, and unblocks the next wave.
               </p>
             </div>
             <div className="gs-build-card">

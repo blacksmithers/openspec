@@ -56,10 +56,9 @@ export default function Sidebar() {
 
       <div className="sidebar-section" style={{ marginTop: 'auto', paddingTop: 24 }}>
         <div style={{ padding: '0 12px', fontSize: 10, color: 'var(--text-dim)', lineHeight: 1.8 }}>
-          <div style={{ fontFamily: 'var(--font-mono)', letterSpacing: 0.5 }}>MIT License</div>
+          <div style={{ fontFamily: 'var(--font-mono)', letterSpacing: 0.5 }}>Apache 2.0 License</div>
           <div>Solutions Forge LTDA</div>
           <div style={{ marginTop: 4, fontStyle: 'italic' }}>The format is open.</div>
-          <div style={{ fontStyle: 'italic' }}>The engine is not.</div>
         </div>
       </div>
     </div>

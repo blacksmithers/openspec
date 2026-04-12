@@ -25,7 +25,7 @@ export default function ValidatePage() {
             The validator is a standalone CLI. Install it globally so you can use
             it from any project:
           </p>
-          <pre className="gs-code gs-code-terminal"><span className="gs-prompt">$ </span>npm install -g @specforge/validator</pre>
+          <pre className="gs-code gs-code-terminal"><span className="gs-prompt">$ </span>npm install -g @blacksmithers/openspec</pre>
         </div>
 
         <div className="gs-section">
@@ -33,7 +33,7 @@ export default function ValidatePage() {
           <p>
             Point it at the file you created in Step 1:
           </p>
-          <pre className="gs-code gs-code-terminal"><span className="gs-prompt">$ </span>specforge-validate todo-api.sf.json</pre>
+          <pre className="gs-code gs-code-terminal"><span className="gs-prompt">$ </span>openspec todo-api.oschema.json</pre>
           <div className="gs-terminal-output gs-output-success">
             <pre>{`✔ Schema valid (v1.0)
 ✔ 3 tickets, 0 errors
@@ -49,9 +49,9 @@ export default function ValidatePage() {
             The validator auto-detects the format from the file extension. JSON,
             YAML, and TOML are all supported:
           </p>
-          <pre className="gs-code gs-code-terminal"><span className="gs-prompt">$ </span>specforge-validate todo-api.sf.yaml
-<span className="gs-prompt">$ </span>specforge-validate todo-api.sf.toml
-<span className="gs-prompt">$ </span>specforge-validate todo-api.sf.json</pre>
+          <pre className="gs-code gs-code-terminal"><span className="gs-prompt">$ </span>openspec todo-api.oschema.yaml
+<span className="gs-prompt">$ </span>openspec todo-api.oschema.toon
+<span className="gs-prompt">$ </span>openspec todo-api.oschema.json</pre>
         </div>
 
         <div className="gs-section">
@@ -62,7 +62,7 @@ export default function ValidatePage() {
           </p>
 
           <h3>Missing required field</h3>
-          <pre className="gs-code gs-code-terminal"><span className="gs-prompt">$ </span>specforge-validate bad-spec.sf.json</pre>
+          <pre className="gs-code gs-code-terminal"><span className="gs-prompt">$ </span>openspec bad-spec.oschema.json</pre>
           <div className="gs-terminal-output gs-output-error">
             <pre>{`✘ Validation failed
 
@@ -73,7 +73,7 @@ export default function ValidatePage() {
           </div>
 
           <h3>Circular dependency</h3>
-          <pre className="gs-code gs-code-terminal"><span className="gs-prompt">$ </span>specforge-validate circular.sf.json</pre>
+          <pre className="gs-code gs-code-terminal"><span className="gs-prompt">$ </span>openspec circular.oschema.json</pre>
           <div className="gs-terminal-output gs-output-error">
             <pre>{`✘ Validation failed
 
@@ -84,7 +84,7 @@ export default function ValidatePage() {
           </div>
 
           <h3>Dangling reference</h3>
-          <pre className="gs-code gs-code-terminal"><span className="gs-prompt">$ </span>specforge-validate dangling.sf.json</pre>
+          <pre className="gs-code gs-code-terminal"><span className="gs-prompt">$ </span>openspec dangling.oschema.json</pre>
           <div className="gs-terminal-output gs-output-error">
             <pre>{`✘ Validation failed
 
@@ -110,7 +110,7 @@ export default function ValidatePage() {
             Add validation to your CI pipeline so specs are always checked on
             push. Here is a GitHub Actions example:
           </p>
-          <pre className="gs-code">{`name: Validate SpecForge Spec
+          <pre className="gs-code">{`name: Validate OpenSpec Spec
 on: [push, pull_request]
 
 jobs:
@@ -123,9 +123,9 @@ jobs:
         with:
           node-version: '20'
 
-      - run: npm install -g @specforge/validator
+      - run: npm install -g @blacksmithers/openspec
 
-      - run: specforge-validate ./specs/*.sf.json`}</pre>
+      - run: openspec ./specs/*.oschema.json`}</pre>
           <p>
             Any validation error will fail the build and show up in the PR
             checks.

@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { MINIMAL_EXAMPLE, FULL_EXAMPLE } from '@/data/examples';
+import { validateWithSchema, getSpecifications, getEpics, getTickets } from '@blacksmithers/openspec';
+import schema from '../../public/schema/v1.0/openspec-schema.json';
 
-interface ValidationResult {
+interface EditorResult {
   valid: boolean;
   version?: string;
   project?: string;
@@ -15,39 +17,29 @@ interface ValidationResult {
 
 export default function LiveEditor() {
   const [code, setCode] = useState(MINIMAL_EXAMPLE);
-  const [result, setResult] = useState<ValidationResult | null>(null);
+  const [result, setResult] = useState<EditorResult | null>(null);
 
   const validate = () => {
     try {
       const parsed = JSON.parse(code);
-      const errors: string[] = [];
-      if (!parsed.specforgeVersion) errors.push('Missing required field: specforgeVersion');
-      else if (parsed.specforgeVersion !== '1.0') errors.push(`Unknown version: "${parsed.specforgeVersion}". Expected "1.0"`);
-      if (!parsed.project) errors.push('Missing required field: project');
-      else {
-        if (!parsed.project.id) errors.push('project.id is required');
-        if (!parsed.project.name) errors.push('project.name is required');
-      }
-      if (parsed.specifications) {
-        parsed.specifications.forEach((spec: { id?: string; title?: string }, i: number) => {
-          if (!spec.id) errors.push(`specifications[${i}].id is required`);
-          if (!spec.title) errors.push(`specifications[${i}].title is required`);
-        });
-      }
-      if (errors.length === 0) {
-        const specCount = parsed.specifications?.length || 0;
-        const epicCount = parsed.specifications?.reduce((a: number, s: { epics?: unknown[] }) => a + (s.epics?.length || 0), 0) || 0;
-        const ticketCount = parsed.specifications?.reduce((a: number, s: { epics?: { tickets?: unknown[] }[] }) => a + (s.epics?.reduce((b: number, e: { tickets?: unknown[] }) => b + (e.tickets?.length || 0), 0) || 0), 0) || 0;
+      const validation = validateWithSchema(parsed, schema);
+      if (validation.valid) {
+        const specs = getSpecifications(parsed);
+        const epics = getEpics(parsed);
+        const tickets = getTickets(parsed);
         setResult({
           valid: true,
-          version: parsed.specforgeVersion,
-          project: parsed.project.name,
-          specs: specCount,
-          epics: epicCount,
-          tickets: ticketCount,
+          version: parsed.openSpecVersion,
+          project: parsed.project?.name,
+          specs: specs.length,
+          epics: epics.length,
+          tickets: tickets.length,
         });
       } else {
-        setResult({ valid: false, errors });
+        setResult({
+          valid: false,
+          errors: validation.errors.map((e) => `${e.path}: ${e.message}`),
+        });
       }
     } catch (e) {
       setResult({ valid: false, errors: [`JSON parse error: ${(e as Error).message}`] });
@@ -63,7 +55,7 @@ export default function LiveEditor() {
     <div className="editor-layout">
       <div className="editor-pane">
         <div className="editor-pane-header">
-          <span className="editor-pane-title">Input (.sf.json)</span>
+          <span className="editor-pane-title">Input (.oschema.json)</span>
           <div className="btn-group">
             <button className="btn btn-ghost" onClick={() => loadExample(MINIMAL_EXAMPLE)} style={{ fontSize: 10 }}>
               Minimal
@@ -81,7 +73,7 @@ export default function LiveEditor() {
           value={code}
           onChange={(e) => { setCode(e.target.value); setResult(null); }}
           spellCheck={false}
-          placeholder="Paste your .sf.json here..."
+          placeholder="Paste your .oschema.json here..."
         />
       </div>
       <div className="result-pane">
@@ -93,7 +85,7 @@ export default function LiveEditor() {
               style={{
                 background: result.valid ? 'var(--green-dim)' : 'var(--red-dim)',
                 color: result.valid ? 'var(--green)' : 'var(--red)',
-                border: `1px solid ${result.valid ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)'}`,
+                border: `1px solid ${result.valid ? 'rgba(91,154,111,0.2)' : 'rgba(199,92,74,0.2)'}`,
               }}
             >
               {result.valid ? 'VALID' : 'INVALID'}
@@ -108,7 +100,7 @@ export default function LiveEditor() {
           )}
           {result && result.valid && (
             <div className="result-success">
-              <div>✓ Valid SpecForge spec (v{result.version})</div>
+              <div>✓ Valid OpenSpec (v{result.version})</div>
               <div style={{ height: 1, background: 'var(--border)', margin: '4px 0' }} />
               <div className="result-info">
                 <div className="result-info-item">
@@ -132,7 +124,7 @@ export default function LiveEditor() {
           )}
           {result && !result.valid && (
             <div className="result-error">
-              <div>✗ Invalid SpecForge spec</div>
+              <div>✗ Invalid OpenSpec</div>
               <div style={{ height: 1, background: 'var(--border)', margin: '4px 0' }} />
               {result.errors?.map((err, i) => (
                 <div key={i} style={{ color: 'var(--red)', fontSize: 11, paddingLeft: 12, position: 'relative' as const }}>

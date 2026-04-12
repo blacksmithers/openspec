@@ -48,19 +48,19 @@ export default function SchemaExplorer() {
       <div className="schema-header">
         <h2>Schema Explorer</h2>
         <p>
-          Browse the complete SpecForge Format v1.0 schema. Click any entity to expand its fields.
-          Required fields are marked with a purple dot.
+          Browse the complete OpenSpec v1.0 schema. Click any entity to expand its fields.
+          Required fields are marked with a dot.
         </p>
       </div>
 
       <div style={{ marginBottom: 20, fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-dim)' }}>
-        Root: <span style={{ color: 'var(--purple)' }}>specforgeVersion</span>
+        Root: <span style={{ color: 'var(--accent)' }}>openSpecVersion</span>
         <span style={{ color: 'var(--text-dim)' }}> : &quot;1.0&quot;</span>
         <span style={{ margin: '0 8px' }}>·</span>
-        <span style={{ color: 'var(--purple)' }}>project</span>
+        <span style={{ color: 'var(--accent)' }}>project</span>
         <span style={{ color: 'var(--text-dim)' }}> : Project</span>
         <span style={{ margin: '0 8px' }}>·</span>
-        <span style={{ color: 'var(--purple)' }}>specifications</span>
+        <span style={{ color: 'var(--accent)' }}>specifications</span>
         <span style={{ color: 'var(--text-dim)' }}> : Specification[]</span>
       </div>
 

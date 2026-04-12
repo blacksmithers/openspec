@@ -2,10 +2,10 @@ import type { Metadata } from 'next';
 import '@/styles/global.css';
 
 export const metadata: Metadata = {
-  title: 'SpecForge Format — Open Standard for AI Agent Orchestration',
+  title: 'OpenSpec — Open Standard for AI Agent Orchestration',
   description: 'The open specification format for AI agent orchestration. Browse the schema, validate specs, and explore file formats.',
   alternates: {
-    canonical: 'https://schema.specforge.tech/',
+    canonical: 'https://openspec.tech/',
   },
 };
 

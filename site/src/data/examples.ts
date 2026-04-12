@@ -1,5 +1,5 @@
 export const MINIMAL_EXAMPLE = `{
-  "specforgeVersion": "1.0",
+  "openSpecVersion": "1.0",
   "project": {
     "id": "a1b2c3d4-0000-0000-0000-000000000001",
     "name": "My Project"
@@ -7,7 +7,7 @@ export const MINIMAL_EXAMPLE = `{
 }`;
 
 export const FULL_EXAMPLE = `{
-  "specforgeVersion": "1.0",
+  "openSpecVersion": "1.0",
   "project": {
     "id": "a1b2c3d4-0000-0000-0000-000000000001",
     "name": "SaaS Platform",
@@ -53,7 +53,7 @@ export const FULL_EXAMPLE = `{
   ]
 }`;
 
-export const TOON_EXAMPLE = `specforgeVersion: 1.0
+export const TOON_EXAMPLE = `openSpecVersion: 1.0
 project:
   id: a1b2c3d4-0000-0000-0000-000000000001
   name: SaaS Platform
@@ -68,7 +68,7 @@ specifications:
       [1]{id,ticketNumber,title,status,complexity,priority}
       d4e5f6a7-…04,1,Webhook signature verification,ready,small,critical`;
 
-export const YAML_EXAMPLE = `specforgeVersion: "1.0"
+export const YAML_EXAMPLE = `openSpecVersion: "1.0"
 project:
   id: a1b2c3d4-0000-0000-0000-000000000001
   name: SaaS Platform

@@ -1,9 +1,9 @@
 'use client';
 
 /**
- * /why/ page for schema.specforge.tech
+ * /why/ page for openspec.tech
  *
- * Design rationale for the SpecForge Format.
+ * Design rationale for OpenSpec.
  * This is the single most important page for SEO and for the Evaluator persona.
  *
  * Content structure:
@@ -185,7 +185,7 @@ function HumanVsAIComparison() {
         <h2>Human Ticket vs. Agent Ticket</h2>
         <p>
           The left ticket is how humans communicate work. The right ticket is how
-          agents need it. Every field in the SpecForge Format exists because its
+          agents need it. Every field in OpenSpec exists because its
           absence caused a real failure.
         </p>
       </div>
@@ -233,7 +233,7 @@ function HumanVsAIComparison() {
 
         {/* Agent ticket */}
         <div className="why-ticket why-ticket-agent">
-          <div className="why-ticket-label">SpecForge Ticket</div>
+          <div className="why-ticket-label">OpenSpec Ticket</div>
           <pre className="why-ticket-code">
 {`{
   "title": "Implement JWT auth middleware",
@@ -293,7 +293,7 @@ function HumanVsAIComparison() {
         <div className="why-callout">
           <span className="why-callout-arrow">→</span>
           <span>
-            A traditional ticket says <strong>what</strong>. A SpecForge ticket
+            A traditional ticket says <strong>what</strong>. An OpenSpec ticket
             says <strong>what, where, how, and how to verify</strong>.
           </span>
         </div>
@@ -383,7 +383,7 @@ export default function WhyPage() {
             where every field exists because its absence caused a real failure.
           </p>
           <p className="why-hero-sub">
-            The SpecForge Format was distilled from 400+ builds across 14M+ lines of
+            OpenSpec was distilled from 400+ builds across 14M+ lines of
             production TypeScript. Every field you see in the{' '}
             <Link href="/schema">schema</Link> earned its place by solving a problem
             that no amount of prompt engineering could fix.
@@ -403,7 +403,7 @@ export default function WhyPage() {
             the same ticket will hallucinate file paths, invent type signatures, and
             produce code that compiles but integrates with nothing. The gap between
             what a human infers and what an agent needs explicitly stated is the
-            entire problem SpecForge Format solves.
+            entire problem OpenSpec solves.
           </p>
         </div>
 
@@ -505,8 +505,8 @@ export default function WhyPage() {
         <div className="why-closing">
           <div className="why-closing-statement">
             <p>
-              The SpecForge Format is an open specification. Any tool can generate,
-              validate, and consume <code>.specforge.json</code> files. SpecForge
+              OpenSpec is an open specification. Any tool can generate,
+              validate, and consume <code>.oschema.json</code> files. SpecForge
               (the product) is a reference implementation — the most advanced engine
               for executing specs — but the format belongs to the ecosystem.
             </p>

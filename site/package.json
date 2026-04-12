@@ -1,5 +1,5 @@
 {
-  "name": "specforge-schema-site",
+  "name": "openspec-site",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@blacksmithers/openspec": "file:../packages/validator",
     "next": "^15.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

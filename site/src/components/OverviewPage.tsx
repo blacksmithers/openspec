@@ -4,11 +4,11 @@ export default function OverviewPage() {
   return (
     <div className="content">
       <div className="overview-hero">
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600, letterSpacing: 2, color: 'var(--purple)', marginBottom: 16, textTransform: 'uppercase' as const }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600, letterSpacing: 2, color: 'var(--accent)', marginBottom: 16, textTransform: 'uppercase' as const }}>
           ◇ Open Standard · v1.0
         </div>
         <h1>
-          SpecForge <span>Format</span>
+          OpenSpec
         </h1>
         <p style={{ marginTop: 16 }}>
           The open specification format for AI agent orchestration. A versioned, tool-agnostic
@@ -22,7 +22,7 @@ export default function OverviewPage() {
       <div className="install-block">
         <div className="install-label">Quick Install</div>
         <div className="install-code">
-          <span className="prompt">$</span> npm install -g @specforge/validator
+          <span className="prompt">$</span> npm install -g @blacksmithers/openspec
         </div>
       </div>
 
@@ -54,7 +54,7 @@ export default function OverviewPage() {
       <div className="ov-core-message">
         <div className="ov-core-label">The Core Insight</div>
         <p className="ov-core-text">
-          Traditional tickets say <strong>what</strong>. SpecForge tickets say <strong>what, where, how, and how to verify</strong>.
+          Traditional tickets say <strong>what</strong>. OpenSpec tickets say <strong>what, where, how, and how to verify</strong>.
           Every field exists because its absence caused a real failure in production AI agent orchestration.
         </p>
       </div>
@@ -72,7 +72,7 @@ export default function OverviewPage() {
             <div className="ov-ticket-footer ov-footer-fail">✗ Agent will guess file paths and invent types</div>
           </div>
           <div className="ov-ticket ov-ticket-agent">
-            <div className="ov-ticket-header">SpecForge Ticket</div>
+            <div className="ov-ticket-header">OpenSpec Ticket</div>
             <pre className="ov-ticket-code">{`{
   "implementation": {
     "filesToCreate": ["src/middleware/auth.ts"],
@@ -97,7 +97,7 @@ export default function OverviewPage() {
         <Link href="/getting-started" className="overview-card">
           <div className="overview-card-icon">▷</div>
           <h3>Getting Started</h3>
-          <p>Write, validate, and use a SpecForge spec in five minutes. No account required.</p>
+          <p>Write, validate, and use an OpenSpec in five minutes. No account required.</p>
         </Link>
         <Link href="/schema" className="overview-card">
           <div className="overview-card-icon">⬡</div>
@@ -121,18 +121,18 @@ export default function OverviewPage() {
         </Link>
       </div>
 
-      <a href="/schema/v1.0/specforge-schema.json" target="_blank" rel="noopener noreferrer" className="overview-card" style={{ marginBottom: 32 }}>
+      <a href="/schema/v1.0/openspec-schema.json" target="_blank" rel="noopener noreferrer" className="overview-card" style={{ marginBottom: 32 }}>
         <div className="overview-card-icon" style={{ color: 'var(--cyan)' }}>◇</div>
         <h3>Schema URL (permanent)</h3>
         <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--cyan)', marginTop: 4 }}>
-          https://schema.specforge.tech/schema/v1.0/specforge-schema.json
+          https://openspec.tech/schema/v1.0/openspec-schema.json
         </p>
       </a>
 
       <div className="ov-positioning">
         <p>
-          The SpecForge Format is an open specification. Any tool can generate, validate, and consume{' '}
-          <code>.specforge.json</code> files. The format belongs to the ecosystem.
+          OpenSpec is an open specification. Any tool can generate, validate, and consume{' '}
+          <code>.oschema.json</code> files. The format belongs to the ecosystem.
         </p>
       </div>
     </div>

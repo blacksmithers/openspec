@@ -11,7 +11,7 @@ export default function GettingStartedPage() {
           <div className="gs-hero-label">▷ Getting Started</div>
           <h1>From Zero to <span>Validated Spec</span></h1>
           <p className="gs-hero-lead">
-            Write, validate, and use a SpecForge spec in five minutes.
+            Write, validate, and use an OpenSpec spec in five minutes.
             No accounts, no API keys, no SaaS dependency.
           </p>
         </div>
@@ -51,7 +51,7 @@ export default function GettingStartedPage() {
         <div className="gs-closing">
           <p>
             The full example spec used in this guide is available for download:
-            {' '}<Link href="/examples/todo-api.sf.json">todo-api.sf.json</Link>
+            {' '}<Link href="/examples/todo-api.oschema.json">todo-api.oschema.json</Link>
           </p>
         </div>
       </div>

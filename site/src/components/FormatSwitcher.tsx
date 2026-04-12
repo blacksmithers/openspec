@@ -4,9 +4,9 @@ import { useState } from 'react';
 import { FULL_EXAMPLE, TOON_EXAMPLE, YAML_EXAMPLE } from '@/data/examples';
 
 const FORMATS = [
-  { id: 'json', ext: '.sf.json', label: 'Machine-first', stat: '100%', statLabel: 'Baseline tokens' },
-  { id: 'yaml', ext: '.sf.yaml', label: 'Human-first', stat: '~85%', statLabel: 'vs JSON tokens' },
-  { id: 'toon', ext: '.sf.toon', label: 'LLM-optimized', stat: '60.1%', statLabel: 'vs JSON tokens' },
+  { id: 'json', ext: '.oschema.json', label: 'Machine-first', stat: '100%', statLabel: 'Baseline tokens' },
+  { id: 'yaml', ext: '.oschema.yaml', label: 'Human-first', stat: '~85%', statLabel: 'vs JSON tokens' },
+  { id: 'toon', ext: '.oschema.toon', label: 'LLM-optimized', stat: '60.1%', statLabel: 'vs JSON tokens' },
 ];
 
 const CODE_MAP: Record<string, string> = {
@@ -16,9 +16,9 @@ const CODE_MAP: Record<string, string> = {
 };
 
 const TITLE_MAP: Record<string, string> = {
-  json: 'example.sf.json',
-  yaml: 'example.sf.yaml',
-  toon: 'example.sf.toon',
+  json: 'example.oschema.json',
+  yaml: 'example.oschema.yaml',
+  toon: 'example.oschema.toon',
 };
 
 const DESC_MAP: Record<string, string> = {
@@ -44,7 +44,7 @@ export default function FormatSwitcher() {
             className={`format-card ${selected === f.id ? 'selected' : ''}`}
             onClick={() => setSelected(f.id)}
           >
-            <div className="format-ext" style={{ color: selected === f.id ? 'var(--purple)' : 'var(--text)' }}>
+            <div className="format-ext" style={{ color: selected === f.id ? 'var(--accent)' : 'var(--text)' }}>
               {f.ext}
             </div>
             <div className="format-label">{f.label}</div>
@@ -74,15 +74,15 @@ export default function FormatSwitcher() {
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 24, fontSize: 12, lineHeight: 1.7, color: 'var(--text-muted)' }}>
           <div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--text)', marginBottom: 6 }}>.sf.json</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--text)', marginBottom: 6 }}>.oschema.json</div>
             Programmatic generation, CI pipelines, database storage, API responses.
           </div>
           <div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--text)', marginBottom: 6 }}>.sf.yaml</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--text)', marginBottom: 6 }}>.oschema.yaml</div>
             Hand-authored specs, version control with readable diffs, config files.
           </div>
           <div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--text)', marginBottom: 6 }}>.sf.toon</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--text)', marginBottom: 6 }}>.oschema.toon</div>
             Injecting specs into LLM agent context windows. 39.9% fewer tokens.
           </div>
         </div>

@@ -3,10 +3,10 @@ import AppShell from '@/components/AppShell';
 import ChangelogPage from '@/components/ChangelogPage';
 
 export const metadata: Metadata = {
-  title: 'Changelog — SpecForge Format v1.0',
-  description: 'All notable changes to the SpecForge Format specification.',
+  title: 'Changelog — OpenSpec v1.0',
+  description: 'All notable changes to the OpenSpec specification.',
   alternates: {
-    canonical: 'https://schema.specforge.tech/changelog/',
+    canonical: 'https://openspec.tech/changelog/',
   },
 };
 

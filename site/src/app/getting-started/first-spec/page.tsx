@@ -16,17 +16,17 @@ export default function FirstSpecPage() {
         <h1>Write Your First Spec</h1>
         <p className="gs-page-lead">
           Build a real spec for a Todo API. By the end you will have a file that
-          any SpecForge-compatible engine can parse, validate, and execute.
+          any OpenSpec-compatible engine can parse, validate, and execute.
         </p>
 
         <div className="gs-section">
           <h2>The smallest valid spec</h2>
           <p>
-            A SpecForge file is JSON, YAML, or TOML. Here is the absolute
+            An OpenSpec file is JSON, YAML, or TOML. Here is the absolute
             minimum — a project with one specification, one epic, and one ticket:
           </p>
           <pre className="gs-code">{`{
-  "specforge": "1.0",
+  "openSpecVersion": "1.0",
   "project": {
     "name": "todo-api",
     "description": "A simple Todo REST API"
@@ -55,8 +55,8 @@ export default function FirstSpecPage() {
   ]
 }`}</pre>
           <p>
-            Save this as <code>todo-api.sf.json</code>. That&apos;s a valid
-            SpecForge spec. Everything else builds on this skeleton.
+            Save this as <code>todo-api.oschema.json</code>. That&apos;s a valid
+            OpenSpec spec. Everything else builds on this skeleton.
           </p>
         </div>
 
@@ -135,7 +135,7 @@ export default function FirstSpecPage() {
         <div className="gs-section">
           <h2>Tickets — The atomic unit of agent work</h2>
           <p>
-            A ticket is the smallest piece of work in a SpecForge spec. It has a
+            A ticket is the smallest piece of work in a OpenSpec spec. It has a
             status, a priority, an estimate, and optionally references patterns
             and blueprints so the implementing agent knows what to follow and
             what to build against.
@@ -166,7 +166,7 @@ export default function FirstSpecPage() {
         <div className="gs-section">
           <h2>Dependencies — The execution graph</h2>
           <p>
-            Tickets can declare dependencies on other tickets. SpecForge supports
+            Tickets can declare dependencies on other tickets. OpenSpec supports
             two dependency types:
           </p>
           <ul className="gs-list">
