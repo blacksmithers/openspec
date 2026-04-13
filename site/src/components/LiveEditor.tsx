@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { MINIMAL_EXAMPLE, FULL_EXAMPLE } from '@/data/examples';
 import { validateWithSchema, getSpecifications, getEpics, getTickets } from '@blacksmithers/openspec';
 import schema from '../../public/schema/v1.0/openspec-schema.json';
+import { ChevronRight, Check, X, Minus } from 'lucide-react';
 
 interface EditorResult {
   valid: boolean;
@@ -64,7 +65,7 @@ export default function LiveEditor() {
               Full
             </button>
             <button className="btn btn-primary" onClick={validate}>
-              Validate ▸
+              Validate <ChevronRight size={12} />
             </button>
           </div>
         </div>
@@ -85,7 +86,7 @@ export default function LiveEditor() {
               style={{
                 background: result.valid ? 'var(--green-dim)' : 'var(--red-dim)',
                 color: result.valid ? 'var(--green)' : 'var(--red)',
-                border: `1px solid ${result.valid ? 'rgba(91,154,111,0.2)' : 'rgba(199,92,74,0.2)'}`,
+                border: `1px solid ${result.valid ? 'var(--green-badge-border)' : 'var(--red-badge-border)'}`,
               }}
             >
               {result.valid ? 'VALID' : 'INVALID'}
@@ -95,12 +96,12 @@ export default function LiveEditor() {
         <div className="result-content">
           {!result && (
             <div style={{ color: 'var(--text-dim)', fontStyle: 'italic' }}>
-              Click &quot;Validate ▸&quot; to check your spec against the v1.0 schema.
+              Click &quot;Validate&quot; to check your spec against the v1.0 schema.
             </div>
           )}
           {result && result.valid && (
             <div className="result-success">
-              <div>✓ Valid OpenSpec (v{result.version})</div>
+              <div><Check size={14} /> Valid OpenSpec (v{result.version})</div>
               <div style={{ height: 1, background: 'var(--border)', margin: '4px 0' }} />
               <div className="result-info">
                 <div className="result-info-item">
@@ -124,11 +125,11 @@ export default function LiveEditor() {
           )}
           {result && !result.valid && (
             <div className="result-error">
-              <div>✗ Invalid OpenSpec</div>
+              <div><X size={14} /> Invalid OpenSpec</div>
               <div style={{ height: 1, background: 'var(--border)', margin: '4px 0' }} />
               {result.errors?.map((err, i) => (
                 <div key={i} style={{ color: 'var(--red)', fontSize: 11, paddingLeft: 12, position: 'relative' as const }}>
-                  <span style={{ position: 'absolute' as const, left: 0 }}>—</span> {err}
+                  <span style={{ position: 'absolute' as const, left: 0 }}><Minus size={12} /></span> {err}
                 </div>
               ))}
             </div>

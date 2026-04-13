@@ -15,6 +15,7 @@
 
 import Link from 'next/link';
 import AppShell from '@/components/AppShell';
+import { X, Check, ArrowRight, Diamond } from 'lucide-react';
 
 // ─── Lesson Data ────────────────────────────────────────────────────────────
 
@@ -223,7 +224,7 @@ function HumanVsAIComparison() {
             </div>
           </div>
           <div className="why-ticket-verdict">
-            <span className="why-verdict-icon">✗</span>
+            <span className="why-verdict-icon"><X size={14} /></span>
             <span>
               The agent will guess file paths, invent type signatures, and ignore
               your existing code structure.
@@ -280,7 +281,7 @@ function HumanVsAIComparison() {
 }`}
           </pre>
           <div className="why-ticket-verdict why-verdict-pass">
-            <span className="why-verdict-icon">✓</span>
+            <span className="why-verdict-icon"><Check size={14} /></span>
             <span>
               The agent knows exactly what to create, what to modify, what
               existing code to reference, and how to verify it&apos;s done.
@@ -291,14 +292,14 @@ function HumanVsAIComparison() {
 
       <div className="why-comparison-callouts">
         <div className="why-callout">
-          <span className="why-callout-arrow">→</span>
+          <span className="why-callout-arrow"><ArrowRight size={14} /></span>
           <span>
             A traditional ticket says <strong>what</strong>. An OpenSpec ticket
             says <strong>what, where, how, and how to verify</strong>.
           </span>
         </div>
         <div className="why-callout">
-          <span className="why-callout-arrow">→</span>
+          <span className="why-callout-arrow"><ArrowRight size={14} /></span>
           <span>
             The dependency with type <code>requires</code> means the scheduler
             can run this ticket in parallel with non-dependent work. Type{' '}
@@ -306,7 +307,7 @@ function HumanVsAIComparison() {
           </span>
         </div>
         <div className="why-callout">
-          <span className="why-callout-arrow">→</span>
+          <span className="why-callout-arrow"><ArrowRight size={14} /></span>
           <span>
             Every field shown here maps to a lesson learned from a real failure.
             Hover over the lesson titles below to see the connections.
@@ -355,7 +356,7 @@ function LessonCard({ lesson }: { lesson: Lesson }) {
         </div>
 
         <div className="why-lesson-principle">
-          <span className="why-principle-icon">◇</span>
+          <span className="why-principle-icon"><Diamond size={14} /></span>
           <span>{lesson.principle}</span>
         </div>
       </div>
@@ -371,7 +372,7 @@ export default function WhyPage() {
       <div className="content">
         {/* Hero */}
         <div className="why-hero">
-          <div className="why-hero-label">◇ Design Rationale</div>
+          <div className="why-hero-label"><Diamond size={12} /> Design Rationale</div>
           <h1>
             Why Traditional Tickets{' '}
             <span>Fail for AI Agents</span>

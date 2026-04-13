@@ -1,3 +1,5 @@
+import { Check, X } from 'lucide-react';
+
 export default function ValidatorPage() {
   return (
     <div className="content">
@@ -20,15 +22,15 @@ export default function ValidatorPage() {
           <div style={{ height: 12 }} />
           <div><span className="t-comment"># Validate a JSON spec</span></div>
           <div><span className="t-prompt">$ </span><span className="t-cmd">openspec</span> <span className="t-path">./my-spec.oschema.json</span></div>
-          <div><span className="t-ok">✓ Valid OpenSpec (v1.0) — json</span></div>
+          <div><span className="t-ok"><Check size={12} /> Valid OpenSpec (v1.0) — json</span></div>
           <div style={{ height: 12 }} />
           <div><span className="t-comment"># Validate a TOON spec</span></div>
           <div><span className="t-prompt">$ </span><span className="t-cmd">openspec</span> <span className="t-path">./my-spec.oschema.toon</span></div>
-          <div><span className="t-ok">✓ Valid OpenSpec (v1.0) — toon</span></div>
+          <div><span className="t-ok"><Check size={12} /> Valid OpenSpec (v1.0) — toon</span></div>
           <div style={{ height: 12 }} />
           <div><span className="t-comment"># Invalid spec — get specific errors</span></div>
           <div><span className="t-prompt">$ </span><span className="t-cmd">openspec</span> <span className="t-path">./broken.oschema.json</span></div>
-          <div><span className="t-err">✗ Invalid OpenSpec:</span></div>
+          <div><span className="t-err"><X size={12} /> Invalid OpenSpec:</span></div>
           <div><span className="t-err">  - Missing required field: project.id</span></div>
           <div><span className="t-err">  - specifications[0].status must be one of: draft, planning, ...</span></div>
         </div>
@@ -63,7 +65,7 @@ export default function ValidatorPage() {
             { label: 'Programmatic API', desc: 'Import validate() and toJson() in your own tools.' },
           ].map((f) => (
             <div key={f.label} style={{ display: 'flex', gap: 10 }}>
-              <span style={{ color: 'var(--green)', flexShrink: 0 }}>✓</span>
+              <span style={{ color: 'var(--green)', flexShrink: 0 }}><Check size={14} /></span>
               <div>
                 <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 4 }}>{f.label}</div>
                 <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.5 }}>{f.desc}</div>

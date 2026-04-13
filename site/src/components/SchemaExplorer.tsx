@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { SCHEMA_TREE, type SchemaEntity } from '@/data/schema-tree';
+import { ChevronRight } from 'lucide-react';
 
 function EntityCard({ entity }: { entity: SchemaEntity }) {
   const [open, setOpen] = useState(false);
@@ -17,7 +18,7 @@ function EntityCard({ entity }: { entity: SchemaEntity }) {
             {entity.fields.length} fields
           </span>
         </div>
-        <span className={`entity-toggle ${open ? 'open' : ''}`}>▸</span>
+        <span className={`entity-toggle ${open ? 'open' : ''}`}><ChevronRight size={14} /></span>
       </div>
       {open && (
         <div className="entity-fields">

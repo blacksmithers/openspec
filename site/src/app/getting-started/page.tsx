@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import AppShell from '@/components/AppShell';
+import { Play } from 'lucide-react';
 
 export default function GettingStartedPage() {
   return (
     <AppShell>
       <div className="content">
         <div className="gs-hero">
-          <div className="gs-hero-label">▷ Getting Started</div>
+          <div className="gs-hero-label"><Play size={12} /> Getting Started</div>
           <h1>From Zero to <span>Validated Spec</span></h1>
           <p className="gs-hero-lead">
             Write, validate, and use an OpenSpec spec in five minutes.

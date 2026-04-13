@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import AppShell from '@/components/AppShell';
+import { ArrowDown } from 'lucide-react';
 
 export default function FirstSpecPage() {
   return (
@@ -225,8 +226,8 @@ export default function FirstSpecPage() {
               <div className="gs-graph-node gs-graph-root">ticket-create-todo</div>
             </div>
             <div className="gs-graph-arrows">
-              <span className="gs-graph-arrow">↓</span>
-              <span className="gs-graph-arrow">↓</span>
+              <span className="gs-graph-arrow"><ArrowDown size={14} /></span>
+              <span className="gs-graph-arrow"><ArrowDown size={14} /></span>
             </div>
             <div className="gs-graph-row">
               <div className="gs-graph-node">ticket-list-todos</div>

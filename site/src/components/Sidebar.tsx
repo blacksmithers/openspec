@@ -3,16 +3,18 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { SCHEMA_TREE } from '@/data/schema-tree';
+import { Diamond, Gem, Play, Hexagon, Code, FileCode, Terminal, Clock } from 'lucide-react';
+import { type ReactNode } from 'react';
 
-const SIDEBAR_ITEMS = [
-  { id: '/', label: 'Overview', icon: '◇' },
-  { id: '/why', label: 'Why This Format', icon: '◆' },
-  { id: '/getting-started', label: 'Getting Started', icon: '▷' },
-  { id: '/schema', label: 'Schema Explorer', icon: '⬡' },
-  { id: '/editor', label: 'Live Editor', icon: '⌘' },
-  { id: '/formats', label: 'File Formats', icon: '◈' },
-  { id: '/validator', label: 'Validator CLI', icon: '▸' },
-  { id: '/changelog', label: 'Changelog', icon: '◦' },
+const SIDEBAR_ITEMS: { id: string; label: string; icon: ReactNode }[] = [
+  { id: '/', label: 'Overview', icon: <Diamond size={14} /> },
+  { id: '/why', label: 'Why This Format', icon: <Gem size={14} /> },
+  { id: '/getting-started', label: 'Getting Started', icon: <Play size={14} /> },
+  { id: '/schema', label: 'Schema Explorer', icon: <Hexagon size={14} /> },
+  { id: '/editor', label: 'Live Editor', icon: <Code size={14} /> },
+  { id: '/formats', label: 'File Formats', icon: <FileCode size={14} /> },
+  { id: '/validator', label: 'Validator CLI', icon: <Terminal size={14} /> },
+  { id: '/changelog', label: 'Changelog', icon: <Clock size={14} /> },
 ];
 
 export default function Sidebar() {

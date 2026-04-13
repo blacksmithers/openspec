@@ -1,11 +1,12 @@
 import Link from 'next/link';
+import { Diamond, Gem, Play, Hexagon, Code, FileCode, Terminal, X, Check } from 'lucide-react';
 
 export default function OverviewPage() {
   return (
     <div className="content">
       <div className="overview-hero">
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600, letterSpacing: 2, color: 'var(--accent)', marginBottom: 16, textTransform: 'uppercase' as const }}>
-          ◇ Open Standard · v1.0
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600, letterSpacing: 2, color: 'var(--accent)', marginBottom: 16, textTransform: 'uppercase' as const, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <Diamond size={12} /> Open Standard · v1.0
         </div>
         <h1>
           OpenSpec
@@ -69,7 +70,7 @@ export default function OverviewPage() {
               <div className="ov-field"><span className="ov-key">Desc</span> Implement JWT-based auth with login/register endpoints</div>
               <div className="ov-field"><span className="ov-key">Points</span> 5</div>
             </div>
-            <div className="ov-ticket-footer ov-footer-fail">✗ Agent will guess file paths and invent types</div>
+            <div className="ov-ticket-footer ov-footer-fail"><X size={14} /> Agent will guess file paths and invent types</div>
           </div>
           <div className="ov-ticket ov-ticket-agent">
             <div className="ov-ticket-header">OpenSpec Ticket</div>
@@ -82,7 +83,7 @@ export default function OverviewPage() {
   "typeReferences": [{ "name": "UserDocument", ... }],
   "dependencies": [{ "type": "requires", ... }]
 }`}</pre>
-            <div className="ov-ticket-footer ov-footer-pass">✓ Every reference explicit, every exit verifiable</div>
+            <div className="ov-ticket-footer ov-footer-pass"><Check size={14} /> Every reference explicit, every exit verifiable</div>
           </div>
         </div>
         <div className="ov-comparison-cta"><Link href="/why">See the full comparison and 8 lessons →</Link></div>
@@ -90,39 +91,39 @@ export default function OverviewPage() {
 
       <div className="overview-grid">
         <Link href="/why" className="overview-card">
-          <div className="overview-card-icon">◆</div>
+          <div className="overview-card-icon"><Gem size={14} /></div>
           <h3>Why This Format</h3>
           <p>Eight lessons from 400+ builds. Every field exists because its absence caused a real failure.</p>
         </Link>
         <Link href="/getting-started" className="overview-card">
-          <div className="overview-card-icon">▷</div>
+          <div className="overview-card-icon"><Play size={14} /></div>
           <h3>Getting Started</h3>
           <p>Write, validate, and use an OpenSpec in five minutes. No account required.</p>
         </Link>
         <Link href="/schema" className="overview-card">
-          <div className="overview-card-icon">⬡</div>
+          <div className="overview-card-icon"><Hexagon size={14} /></div>
           <h3>Schema Explorer</h3>
           <p>Browse every entity and field in the format with types, requirements, and descriptions.</p>
         </Link>
         <Link href="/editor" className="overview-card">
-          <div className="overview-card-icon">⌘</div>
+          <div className="overview-card-icon"><Code size={14} /></div>
           <h3>Live Editor</h3>
           <p>Paste or write a spec file and validate it in real-time against the v1.0 schema.</p>
         </Link>
         <Link href="/formats" className="overview-card">
-          <div className="overview-card-icon">◈</div>
+          <div className="overview-card-icon"><FileCode size={14} /></div>
           <h3>Three Formats</h3>
           <p>JSON for machines, YAML for humans, TOON for LLMs. All lossless representations of one schema.</p>
         </Link>
         <Link href="/validator" className="overview-card">
-          <div className="overview-card-icon">▸</div>
+          <div className="overview-card-icon"><Terminal size={14} /></div>
           <h3>Offline Validator</h3>
           <p>npm package that validates specs locally. Zero auth, zero SaaS dependency.</p>
         </Link>
       </div>
 
       <a href="/schema/v1.0/openspec-schema.json" target="_blank" rel="noopener noreferrer" className="overview-card" style={{ marginBottom: 32 }}>
-        <div className="overview-card-icon" style={{ color: 'var(--cyan)' }}>◇</div>
+        <div className="overview-card-icon" style={{ color: 'var(--cyan)' }}><Diamond size={18} /></div>
         <h3>Schema URL (permanent)</h3>
         <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--cyan)', marginTop: 4 }}>
           https://openspec.tech/schema/v1.0/openspec-schema.json
