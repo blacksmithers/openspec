@@ -22,7 +22,7 @@ jobs:
             site/package-lock.json
 
       - name: Install validator dependencies
-        run: cd packages/validator && npm ci
+        run: cd packages/validator && npm install --omit=dev
 
       - name: Install site dependencies
         run: cd site && npm ci
