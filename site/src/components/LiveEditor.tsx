@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { MINIMAL_EXAMPLE, FULL_EXAMPLE, YAML_EXAMPLE, TOON_EXAMPLE } from '@/data/examples';
-import { validateWithSchema, getSpecifications, getEpics, getTickets, parse, detectFormat } from '@blacksmithers/openspec';
+import { validateWithSchema, getSpecifications, getEpics, getTickets, parse, detectFormat, toJson, toYaml } from '@blacksmithers/openspec';
 import type { SpecFormat } from '@blacksmithers/openspec';
 import schema from '../../public/schema/v1.0/openspec-schema.json';
 import { ChevronRight, Check, X, Minus } from 'lucide-react';
@@ -65,9 +65,32 @@ export default function LiveEditor() {
     }
   };
 
-  const loadExample = (format: SpecFormat, example: string) => {
-    setCode(example);
-    setActiveFormat(format);
+  const switchFormat = (target: SpecFormat) => {
+    if (target === activeFormat) return;
+    const currentFormat = detectFormat(code);
+
+    // Try to convert current content
+    if (currentFormat !== 'toon' && target !== 'toon') {
+      try {
+        const parsed = parse(code, currentFormat);
+        const converted = target === 'json' ? toJson(parsed) : toYaml(parsed);
+        setCode(converted);
+        setActiveFormat(target);
+        setResult(null);
+        return;
+      } catch {
+        // Fall through to example
+      }
+    }
+
+    // Fallback: load example for target format
+    const examples: Record<SpecFormat, string> = {
+      json: MINIMAL_EXAMPLE,
+      yaml: YAML_EXAMPLE,
+      toon: TOON_EXAMPLE,
+    };
+    setCode(examples[target]);
+    setActiveFormat(target);
     setResult(null);
   };
 
@@ -80,24 +103,24 @@ export default function LiveEditor() {
             <div className="format-tabs">
               <button
                 className={`format-tab ${activeFormat === 'json' ? 'active' : ''}`}
-                onClick={() => loadExample('json', MINIMAL_EXAMPLE)}
+                onClick={() => switchFormat('json')}
               >
                 JSON
               </button>
               <button
                 className={`format-tab ${activeFormat === 'yaml' ? 'active' : ''}`}
-                onClick={() => loadExample('yaml', YAML_EXAMPLE)}
+                onClick={() => switchFormat('yaml')}
               >
                 YAML
               </button>
               <button
                 className={`format-tab ${activeFormat === 'toon' ? 'active' : ''}`}
-                onClick={() => loadExample('toon', TOON_EXAMPLE)}
+                onClick={() => switchFormat('toon')}
               >
                 TOON
               </button>
             </div>
-            <button className="btn btn-ghost" onClick={() => loadExample('json', FULL_EXAMPLE)} style={{ fontSize: 10 }}>
+            <button className="btn btn-ghost" onClick={() => { setCode(FULL_EXAMPLE); setActiveFormat('json'); setResult(null); }} style={{ fontSize: 10 }}>
               Full
             </button>
             <button className="btn btn-primary" onClick={validate}>
