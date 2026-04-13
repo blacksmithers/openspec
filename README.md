@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://openspec.tech/logo-lockup.svg" alt="OpenSpec Format" height="56" />
+  <img src="https://openspec.tech/openspec-logo.svg" alt="OpenSpec Format" height="56" />
 </p>
 
 <p align="center">
