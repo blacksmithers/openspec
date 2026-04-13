@@ -702,7 +702,34 @@ body {
 .btn-group {
   display: flex;
   gap: 4px;
+  align-items: center;
 }
+
+.format-tabs {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-right: 4px;
+}
+
+.format-tab {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 4px 8px;
+  background: transparent;
+  color: var(--text-dim);
+  border: none;
+  border-right: 1px solid var(--border);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.format-tab:last-child { border-right: none; }
+.format-tab:hover { color: var(--text-muted); background: var(--surface-subtle); }
+.format-tab.active { color: var(--accent); background: var(--accent-hover); }
 
 /* ── Formats Page ───────────────────── */
 .format-comparison {
