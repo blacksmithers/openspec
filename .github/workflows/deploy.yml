@@ -17,9 +17,14 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: site/package-lock.json
+          cache-dependency-path: |
+            packages/validator/package-lock.json
+            site/package-lock.json
 
-      - name: Install dependencies
+      - name: Install validator dependencies
+        run: cd packages/validator && npm ci
+
+      - name: Install site dependencies
         run: cd site && npm ci
 
       - name: Build
