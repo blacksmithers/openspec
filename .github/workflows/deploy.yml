@@ -5,13 +5,6 @@ on:
     branches: [main]
   workflow_dispatch:
 
-permissions:
-  id-token: write
-  contents: read
-
-env:
-  AWS_REGION: us-east-1
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -32,32 +25,9 @@ jobs:
       - name: Build
         run: cd site && npm run build
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v5
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
         with:
-          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Sync to S3 (static assets)
-        run: |
-          aws s3 sync site/out/ s3://${{ secrets.S3_BUCKET }}/ \
-            --delete \
-            --cache-control "public, max-age=31536000, immutable" \
-            --exclude "*.html" \
-            --exclude "*.xml" \
-            --exclude "*.json"
-
-      - name: Sync to S3 (HTML/XML/JSON)
-        run: |
-          aws s3 sync site/out/ s3://${{ secrets.S3_BUCKET }}/ \
-            --cache-control "public, max-age=0, must-revalidate" \
-            --exclude "*" \
-            --include "*.html" \
-            --include "*.xml" \
-            --include "*.json"
-
-      - name: Invalidate CloudFront
-        run: |
-          aws cloudfront create-invalidation \
-            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
-            --paths "/*"
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy site/out --project-name=openspec
