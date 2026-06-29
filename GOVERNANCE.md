@@ -24,6 +24,15 @@ All changes to the OpenSpec Format are evaluated against these principles, in or
    are preferred over required fields. New entities are added only when they cannot be
    expressed as metadata on existing entities.
 
+## Published schema generations
+
+The `schemaVersion` value identifies a **published schema generation**. Generations are
+permanent and additive: a new generation is published at its own versioned URL rather than
+mutating an existing one. `schemaVersion: "1.1"` is the second generation — it reshapes the
+format (single-specification root, structured planning entities) and was released through the
+**Major-tier** process below, including a migration summary in `CHANGELOG.md`. The `"1.0"`
+generation remains permanent and valid at its existing URL.
+
 ## Change Tiers
 
 ### Patch (1.0.x)

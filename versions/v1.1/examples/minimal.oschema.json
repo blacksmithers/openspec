@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "1.1",
+  "id": "spec-task-tracker",
+  "projectId": "proj-task-tracker",
+  "title": "Task Tracker API",
+  "status": "planning",
+  "goals": [
+    {
+      "id": "goal-1",
+      "title": "Let users capture tasks quickly",
+      "description": "Provide a low-friction way to create and list tasks so nothing is forgotten.",
+      "type": "user",
+      "successCriteria": ["A task can be created and listed in under one second"]
+    },
+    {
+      "id": "goal-2",
+      "title": "Keep task data durable",
+      "description": "Persist tasks so they survive restarts and are never silently lost.",
+      "type": "technical",
+      "successCriteria": ["No task is lost across a service restart"]
+    },
+    {
+      "id": "goal-3",
+      "title": "Expose a stable HTTP contract",
+      "description": "Offer a predictable REST surface that clients can integrate against.",
+      "type": "business",
+      "successCriteria": ["The public endpoints follow a documented, versioned contract"]
+    }
+  ],
+  "requirements": [
+    {
+      "id": "req-1",
+      "title": "Create a task",
+      "description": "Clients can create a task with a title and optional description.",
+      "type": "functional",
+      "acceptanceCriteria": [
+        {
+          "id": "ac-1",
+          "given": "a valid task payload",
+          "when": "the client POSTs to /tasks",
+          "then": "the task is stored and returned with a generated id",
+          "order": 1
+        }
+      ]
+    },
+    {
+      "id": "req-2",
+      "title": "List tasks",
+      "description": "Clients can retrieve the list of existing tasks.",
+      "type": "functional",
+      "acceptanceCriteria": [
+        {
+          "id": "ac-2",
+          "given": "stored tasks exist",
+          "when": "the client GETs /tasks",
+          "then": "all tasks are returned in creation order",
+          "order": 1
+        }
+      ]
+    },
+    {
+      "id": "req-3",
+      "title": "Reject invalid input",
+      "description": "Malformed task payloads are rejected with a clear error.",
+      "type": "business-rule",
+      "acceptanceCriteria": [
+        {
+          "id": "ac-3",
+          "given": "a task payload without a title",
+          "when": "the client POSTs to /tasks",
+          "then": "the request is rejected with a 400 and a descriptive message",
+          "order": 1
+        }
+      ]
+    }
+  ],
+  "architecture": "A single stateless HTTP service backed by a relational database, exposing a small REST API for tasks.",
+  "scope": {
+    "inScope": [
+      "Creating tasks",
+      "Listing tasks",
+      "Input validation"
+    ],
+    "outOfScope": [
+      "Authentication and multi-user accounts"
+    ]
+  },
+  "techStack": [],
+  "folderStructures": [
+    {
+      "id": "fs-1",
+      "scope": "service",
+      "content": "src/\n  routes/tasks.ts\n  db/index.ts\n  server.ts"
+    }
+  ],
+  "acceptanceCriteria": [],
+  "nonFunctionalRequirements": [],
+  "guardrails": [],
+  "epics": [],
+  "blueprints": []
+}

@@ -17,35 +17,31 @@ export function resolveDependencyGraph(spec: OpenSpec): {
   const edges: { from: string; to: string; type: 'blocks' | 'requires' }[] = [];
   for (const ticket of nodes.values()) {
     for (const dep of ticket.dependencies ?? []) {
-      edges.push({ from: ticket.id, to: dep.dependsOnId, type: dep.type });
+      edges.push({ from: ticket.id, to: dep.ticketId, type: dep.type });
     }
   }
   return { nodes, edges };
 }
 
+/**
+ * Tickets that can be started immediately: those with no dependencies to wait
+ * on. v1.1 has no per-ticket status, so readiness is derived purely from the
+ * dependency graph (the entry points of the DAG).
+ */
 export function getReadyTickets(spec: OpenSpec): Ticket[] {
-  const map = getAllTicketsMap(spec);
-  return [...map.values()].filter((ticket) => {
-    if (ticket.status !== 'pending' && ticket.status !== 'ready') return false;
-    const deps = (ticket.dependencies ?? [])
-      .map((dep) => map.get(dep.dependsOnId))
-      .filter(Boolean) as Ticket[];
-    return deps.every((dep) => dep.status === 'done');
-  });
+  return getTickets(spec).filter(
+    (ticket) => (ticket.dependencies ?? []).length === 0
+  );
 }
 
+/**
+ * Tickets gated by a hard "blocks" dependency. v1.1 does not store a "blocked"
+ * status; it is inferred from the presence of a blocking dependency edge.
+ */
 export function getBlockedTickets(spec: OpenSpec): Ticket[] {
-  const map = getAllTicketsMap(spec);
-  return [...map.values()].filter((ticket) => {
-    const blockDeps = (ticket.dependencies ?? []).filter(
-      (dep) => dep.type === 'blocks'
-    );
-    if (blockDeps.length === 0) return false;
-    return blockDeps.some((dep) => {
-      const blocker = map.get(dep.dependsOnId);
-      return blocker && blocker.status !== 'done';
-    });
-  });
+  return getTickets(spec).filter((ticket) =>
+    (ticket.dependencies ?? []).some((dep) => dep.type === 'blocks')
+  );
 }
 
 export function getExecutionWaves(spec: OpenSpec): Ticket[][] {
@@ -61,9 +57,10 @@ export function getExecutionWaves(spec: OpenSpec): Ticket[][] {
       const ticket = map.get(id)!;
       // Both blocks and requires affect wave ordering:
       // blocks = hard gate, requires = needs output
-      const allDeps = (ticket.dependencies ?? []);
+      const allDeps = ticket.dependencies ?? [];
       const allResolved = allDeps.every((dep) =>
-        done.has(dep.dependsOnId)
+        // Dependencies on tickets outside this spec cannot gate ordering.
+        !map.has(dep.ticketId) || done.has(dep.ticketId)
       );
       if (allResolved) {
         wave.push(ticket);

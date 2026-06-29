@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.findByTag = exports.findByStatus = exports.findTicketByNumber = exports.findTicketById = exports.resolvePatterns = exports.getExecutionWaves = exports.getBlockedTickets = exports.getReadyTickets = exports.resolveDependencyGraph = exports.getAllTicketsMap = exports.getBlueprints = exports.getTickets = exports.getEpics = exports.getSpecifications = exports.currentVersion = exports.validateWithSchema = exports.validate = exports.toToon = exports.toYaml = exports.toJson = exports.detectFormat = exports.parse = void 0;
+exports.findTicketByNumber = exports.findTicketById = exports.resolvePatterns = exports.getExecutionWaves = exports.getBlockedTickets = exports.getReadyTickets = exports.resolveDependencyGraph = exports.getAllTicketsMap = exports.getBlueprints = exports.getTickets = exports.getEpics = exports.getSpecifications = exports.currentVersion = exports.validateWithSchema = exports.validate = exports.toToon = exports.toYaml = exports.toJson = exports.detectFormat = exports.parse = void 0;
 // Parser
 var parse_1 = require("./parser/parse");
 Object.defineProperty(exports, "parse", { enumerable: true, get: function () { return parse_1.parse; } });
@@ -29,6 +29,4 @@ Object.defineProperty(exports, "getExecutionWaves", { enumerable: true, get: fun
 Object.defineProperty(exports, "resolvePatterns", { enumerable: true, get: function () { return traversal_1.resolvePatterns; } });
 Object.defineProperty(exports, "findTicketById", { enumerable: true, get: function () { return traversal_1.findTicketById; } });
 Object.defineProperty(exports, "findTicketByNumber", { enumerable: true, get: function () { return traversal_1.findTicketByNumber; } });
-Object.defineProperty(exports, "findByStatus", { enumerable: true, get: function () { return traversal_1.findByStatus; } });
-Object.defineProperty(exports, "findByTag", { enumerable: true, get: function () { return traversal_1.findByTag; } });
 //# sourceMappingURL=index.js.map

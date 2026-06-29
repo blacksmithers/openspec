@@ -35,7 +35,7 @@ export default function GettingStartedPage() {
             <div className="gs-step-num">02</div>
             <div className="gs-step-body">
               <h3>Validate It</h3>
-              <p>Install the CLI validator and check your spec against the v1.0 schema. See what errors look like.</p>
+              <p>Install the CLI validator and check your spec against the v1.1 schema. See what errors look like.</p>
               <span className="gs-step-time">~1 min</span>
             </div>
           </Link>

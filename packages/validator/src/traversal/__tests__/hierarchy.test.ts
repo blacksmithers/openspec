@@ -5,40 +5,38 @@ import { getSpecifications, getEpics, getTickets, getBlueprints } from '../hiera
 import type { OpenSpec } from '../../parser/types';
 
 const fixture: OpenSpec = JSON.parse(
-  readFileSync(join(__dirname, '..', '..', '..', '..', '..', 'versions', 'v1.0', 'examples', 'todo-api.oschema.json'), 'utf-8')
+  readFileSync(
+    join(__dirname, '..', '..', '..', '..', '..', 'versions', 'v1.1', 'examples', 'todo-api.oschema.json'),
+    'utf-8'
+  )
 );
 
-const emptySpec: OpenSpec = {
-  openSpecVersion: '1.0',
-  project: { id: '00000000-0000-0000-0000-000000000001', name: 'empty' },
-};
+const emptySpec = { schemaVersion: '1.1', epics: [], blueprints: [] } as unknown as OpenSpec;
 
 describe('getSpecifications', () => {
-  it('returns 1 specification', () => {
-    expect(getSpecifications(fixture)).toHaveLength(1);
-  });
-
-  it('returns empty array for empty spec', () => {
-    expect(getSpecifications(emptySpec)).toHaveLength(0);
+  it('returns the root spec as a single-element array', () => {
+    const specs = getSpecifications(fixture);
+    expect(specs).toHaveLength(1);
+    expect(specs[0]).toBe(fixture);
   });
 });
 
 describe('getEpics', () => {
-  it('returns 2 epics', () => {
-    expect(getEpics(fixture)).toHaveLength(2);
+  it('returns 1 epic', () => {
+    expect(getEpics(fixture)).toHaveLength(1);
   });
 
-  it('returns empty array for empty spec', () => {
+  it('returns empty array when there are no epics', () => {
     expect(getEpics(emptySpec)).toHaveLength(0);
   });
 });
 
 describe('getTickets', () => {
-  it('returns 3 tickets', () => {
-    expect(getTickets(fixture)).toHaveLength(3);
+  it('returns 2 tickets', () => {
+    expect(getTickets(fixture)).toHaveLength(2);
   });
 
-  it('returns empty array for empty spec', () => {
+  it('returns empty array when there are no epics', () => {
     expect(getTickets(emptySpec)).toHaveLength(0);
   });
 });
@@ -48,7 +46,7 @@ describe('getBlueprints', () => {
     expect(getBlueprints(fixture)).toHaveLength(1);
   });
 
-  it('returns empty array for empty spec', () => {
+  it('returns empty array when there are no blueprints', () => {
     expect(getBlueprints(emptySpec)).toHaveLength(0);
   });
 });

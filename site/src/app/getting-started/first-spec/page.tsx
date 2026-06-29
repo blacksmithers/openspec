@@ -23,37 +23,112 @@ export default function FirstSpecPage() {
         <div className="gs-section">
           <h2>The smallest valid spec</h2>
           <p>
-            An OpenSpec file is JSON, YAML, or TOML. Here is the absolute
-            minimum — a project with one specification, one epic, and one ticket:
+            An OpenSpec file is JSON, YAML, or TOON. In v1.1 the document{' '}
+            <em>is</em> a single specification — there is no <code>project</code>{' '}
+            wrapper and no <code>specifications</code> array. The root carries{' '}
+            <code>schemaVersion: &quot;1.1&quot;</code> plus a handful of required
+            fields: <code>id</code>, <code>projectId</code>, <code>title</code>,{' '}
+            <code>status</code>, <code>goals</code>, <code>requirements</code>,{' '}
+            <code>architecture</code>, <code>scope</code>, <code>techStack</code>,{' '}
+            <code>folderStructures</code>, <code>acceptanceCriteria</code>,{' '}
+            <code>nonFunctionalRequirements</code>, <code>guardrails</code>,{' '}
+            <code>epics</code>, and <code>blueprints</code>. Here is the smallest
+            valid Todo API spec:
           </p>
           <pre className="gs-code">{`{
-  "openSpecVersion": "1.0",
-  "project": {
-    "name": "todo-api",
-    "description": "A simple Todo REST API"
-  },
-  "specifications": [
+  "schemaVersion": "1.1",
+  "id": "spec-todo-api",
+  "projectId": "proj-todo",
+  "title": "Todo API",
+  "status": "planning",
+  "goals": [
     {
-      "id": "spec-todo-api",
-      "title": "Todo API",
-      "status": "draft",
-      "epics": [
+      "id": "goal-capture",
+      "title": "Capture todos quickly",
+      "description": "Let users create and list todos with minimal friction.",
+      "type": "user",
+      "successCriteria": ["A todo can be created and listed in under one second"]
+    },
+    {
+      "id": "goal-durable",
+      "title": "Keep todos durable",
+      "description": "Persist todos so they survive restarts.",
+      "type": "technical",
+      "successCriteria": ["No todo is lost across a service restart"]
+    },
+    {
+      "id": "goal-contract",
+      "title": "Expose a stable contract",
+      "description": "Offer a predictable REST surface clients can rely on.",
+      "type": "business",
+      "successCriteria": ["The public endpoints follow a documented contract"]
+    }
+  ],
+  "requirements": [
+    {
+      "id": "req-create",
+      "title": "Create a todo",
+      "description": "Clients can create a todo with a title.",
+      "type": "functional",
+      "acceptanceCriteria": [
         {
-          "id": "epic-core",
-          "title": "Core CRUD",
-          "tickets": [
-            {
-              "id": "ticket-create-todo",
-              "title": "POST /todos",
-              "status": "open",
-              "priority": "high",
-              "estimate": "S"
-            }
-          ]
+          "id": "ac-create",
+          "given": "a valid todo payload",
+          "when": "the client POSTs to /todos",
+          "then": "the todo is stored and returned with a generated id",
+          "order": 1
+        }
+      ]
+    },
+    {
+      "id": "req-list",
+      "title": "List todos",
+      "description": "Clients can retrieve all todos.",
+      "type": "functional",
+      "acceptanceCriteria": [
+        {
+          "id": "ac-list",
+          "given": "stored todos exist",
+          "when": "the client GETs /todos",
+          "then": "all todos are returned in creation order",
+          "order": 1
+        }
+      ]
+    },
+    {
+      "id": "req-validate",
+      "title": "Reject invalid input",
+      "description": "Malformed payloads are rejected clearly.",
+      "type": "business-rule",
+      "acceptanceCriteria": [
+        {
+          "id": "ac-validate",
+          "given": "a payload without a title",
+          "when": "the client POSTs to /todos",
+          "then": "the request is rejected with a 400",
+          "order": 1
         }
       ]
     }
-  ]
+  ],
+  "architecture": "A stateless HTTP service backed by a relational database, exposing a small REST API for todos.",
+  "scope": {
+    "inScope": ["Creating todos", "Listing todos", "Input validation"],
+    "outOfScope": ["Authentication and multi-user accounts"]
+  },
+  "techStack": [],
+  "folderStructures": [
+    {
+      "id": "fs-service",
+      "scope": "service",
+      "content": "src/\\n  routes/todos.ts\\n  db/index.ts\\n  server.ts"
+    }
+  ],
+  "acceptanceCriteria": [],
+  "nonFunctionalRequirements": [],
+  "guardrails": [],
+  "epics": [],
+  "blueprints": []
 }`}</pre>
           <p>
             Save this as <code>todo-api.oschema.json</code>. That&apos;s a valid
@@ -62,35 +137,69 @@ export default function FirstSpecPage() {
         </div>
 
         <div className="gs-section">
-          <h2>Adding a Specification with Patterns</h2>
+          <h2>Goals and requirements are structured</h2>
           <p>
-            Patterns capture architectural decisions that apply across tickets.
-            They prevent style drift by giving agents a single source of truth
-            for conventions.
+            In v1.1, <code>goals</code> and <code>requirements</code> are no longer
+            plain strings — each is a typed object. A goal declares a{' '}
+            <code>type</code> and <code>successCriteria</code>; a requirement
+            carries <code>acceptanceCriteria</code> written as Given / When / Then
+            so an agent has a concrete checklist to verify against.
           </p>
           <pre className="gs-code">{`{
-  "id": "spec-todo-api",
-  "title": "Todo API",
-  "status": "draft",
-  "patterns": [
+  "goals": [
     {
-      "id": "pattern-rest-conventions",
-      "title": "REST Conventions",
-      "description": "All endpoints follow JSON:API style responses.",
-      "rules": [
-        "Use plural nouns for resource URLs",
-        "Return 201 for successful POST, 200 for GET/PUT, 204 for DELETE",
-        "Wrap response data in a { \\"data\\": ... } envelope"
-      ]
-    },
+      "id": "goal-capture",
+      "title": "Capture todos quickly",
+      "description": "Let users create and list todos with minimal friction.",
+      "type": "user",
+      "successCriteria": ["A todo can be created and listed in under one second"]
+    }
+  ],
+  "requirements": [
     {
-      "id": "pattern-error-format",
-      "title": "Error Format",
-      "description": "Consistent error shape across all endpoints.",
-      "rules": [
-        "Return { \\"error\\": { \\"code\\": string, \\"message\\": string } }",
-        "Use HTTP status codes correctly — 400 for validation, 404 for missing, 500 for server errors"
+      "id": "req-create",
+      "title": "Create a todo",
+      "description": "Clients can create a todo with a title.",
+      "type": "functional",
+      "acceptanceCriteria": [
+        {
+          "id": "ac-create",
+          "given": "a valid todo payload",
+          "when": "the client POSTs to /todos",
+          "then": "the todo is stored and returned with a generated id",
+          "order": 1
+        }
       ]
+    }
+  ]
+}`}</pre>
+          <div className="gs-annotation-box">
+            <strong>Why this matters:</strong> Agents hallucinate requirements when
+            the spec is vague. Structured acceptance criteria give them an explicit
+            pass/fail checklist instead of a paragraph to interpret.{' '}
+            <Link href="/why#hallucination">See: Hallucinated Requirements →</Link>
+          </div>
+        </div>
+
+        <div className="gs-section">
+          <h2>Shared patterns</h2>
+          <p>
+            Shared patterns capture conventions that apply across tickets. They
+            prevent style drift by giving agents a single source of truth for code
+            standards, common imports, and return types.
+          </p>
+          <pre className="gs-code">{`{
+  "sharedPatterns": [
+    {
+      "id": "sp-rest",
+      "name": "REST conventions",
+      "description": "All endpoints return JSON and use plural resource URLs.",
+      "codeStandards": {
+        "naming": "camelCase for fields, plural nouns for routes",
+        "errorHandling": "Return a typed Result at module boundaries"
+      },
+      "commonImports": ["import { Result, ok, err } from '../shared/result'"],
+      "returnTypes": { "handler": "Promise<Result<Response, AppError>>" }
     }
   ]
 }`}</pre>
@@ -105,26 +214,29 @@ export default function FirstSpecPage() {
         <div className="gs-section">
           <h2>Blueprints</h2>
           <p>
-            Blueprints are design artifacts — diagrams, schemas, wireframes —
-            referenced by tickets. They keep design decisions discoverable
+            Blueprints are design artifacts — diagrams, schemas, ADRs — referenced
+            by tickets. Each has a <code>category</code>, a <code>format</code>, and
+            a <code>content</code> body. They keep design decisions discoverable
             instead of buried in chat logs or document folders.
           </p>
-          <pre className="gs-code">{`"blueprints": [
-  {
-    "id": "blueprint-db-schema",
-    "title": "Database Schema",
-    "type": "schema",
-    "content": "CREATE TABLE todos (\\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\\n  title TEXT NOT NULL,\\n  completed BOOLEAN DEFAULT false,\\n  created_at TIMESTAMPTZ DEFAULT now()\\n);",
-    "format": "sql"
-  },
-  {
-    "id": "blueprint-api-contract",
-    "title": "API Contract",
-    "type": "api",
-    "content": "openapi: 3.0.0\\npaths:\\n  /todos:\\n    get:\\n      summary: List all todos",
-    "format": "yaml"
-  }
-]`}</pre>
+          <pre className="gs-code">{`{
+  "blueprints": [
+    {
+      "id": "bp-db-schema",
+      "title": "Database schema",
+      "category": "erd",
+      "format": "mermaid",
+      "content": "erDiagram\\n  TODO {\\n    uuid id PK\\n    string title\\n    bool completed\\n  }"
+    },
+    {
+      "id": "bp-api-contract",
+      "title": "API contract",
+      "category": "api",
+      "format": "markdown",
+      "content": "GET /todos -> 200 [Todo]\\nPOST /todos -> 201 Todo"
+    }
+  ]
+}`}</pre>
           <div className="gs-annotation-box">
             <strong>Why this matters:</strong> Design artifacts that live outside
             the spec get lost or go stale. Blueprints keep them version-controlled
@@ -136,25 +248,46 @@ export default function FirstSpecPage() {
         <div className="gs-section">
           <h2>Tickets — The atomic unit of agent work</h2>
           <p>
-            A ticket is the smallest piece of work in a OpenSpec spec. It has a
-            status, a priority, an estimate, and optionally references patterns
-            and blueprints so the implementing agent knows what to follow and
-            what to build against.
+            Tickets live inside an epic and are the smallest piece of work in a
+            spec. Each declares a <code>ticketType</code>, a <code>complexity</code>,
+            an <code>estimatedMinutes</code> budget, Given / When / Then{' '}
+            <code>acceptanceCriteria</code>, ordered <code>implementationSteps</code>,
+            and the files it will touch — so the implementing agent knows exactly
+            what to build and how it will be checked.
           </p>
           <pre className="gs-code">{`{
   "id": "ticket-create-todo",
-  "title": "POST /todos",
-  "description": "Create a new todo item. Validate title is non-empty. Return 201 with the created resource.",
-  "status": "open",
-  "priority": "high",
-  "estimate": "S",
-  "patternRefs": ["pattern-rest-conventions", "pattern-error-format"],
-  "blueprintRefs": ["blueprint-db-schema", "blueprint-api-contract"],
+  "epicId": "epic-core",
+  "title": "Implement POST /todos",
+  "description": "Create a todo. Validate the title is non-empty. Return 201 with the created resource.",
+  "ticketType": "implementation",
+  "complexity": "small",
+  "estimatedMinutes": 90,
   "acceptanceCriteria": [
-    "POST /todos with { \\"title\\": \\"Buy milk\\" } returns 201",
-    "Response body matches { \\"data\\": { \\"id\\": string, \\"title\\": string, \\"completed\\": false } }",
-    "POST /todos with empty title returns 400 with error envelope"
-  ]
+    {
+      "id": "ac-create-201",
+      "given": "a payload with a title",
+      "when": "POST /todos is called",
+      "then": "a 201 is returned with the created todo",
+      "order": 1
+    },
+    {
+      "id": "ac-create-400",
+      "given": "a payload without a title",
+      "when": "POST /todos is called",
+      "then": "a 400 is returned with an error envelope",
+      "order": 2
+    }
+  ],
+  "implementationSteps": [
+    { "id": "step-1", "text": "Add the POST /todos route handler", "order": 1 },
+    { "id": "step-2", "text": "Validate the payload and persist the todo", "order": 2 }
+  ],
+  "filesToBeCreated": ["src/routes/todos.ts"],
+  "blueprintReferences": [
+    { "blueprintId": "bp-api-contract", "context": "Create path" }
+  ],
+  "dependencies": []
 }`}</pre>
           <div className="gs-annotation-box">
             <strong>Why this matters:</strong> Agents hallucinate requirements
@@ -167,8 +300,9 @@ export default function FirstSpecPage() {
         <div className="gs-section">
           <h2>Dependencies — The execution graph</h2>
           <p>
-            Tickets can declare dependencies on other tickets. OpenSpec supports
-            two dependency types:
+            Tickets can declare dependencies on other tickets using a target{' '}
+            <code>ticketId</code> and a type. OpenSpec supports two dependency
+            types:
           </p>
           <ul className="gs-list">
             <li>
@@ -180,32 +314,27 @@ export default function FirstSpecPage() {
               until it is complete.
             </li>
           </ul>
-          <pre className="gs-code">{`{
-  "id": "ticket-list-todos",
-  "title": "GET /todos",
-  "status": "open",
-  "priority": "high",
-  "estimate": "S",
-  "dependencies": [
-    {
-      "ticketId": "ticket-create-todo",
-      "type": "requires"
-    }
-  ]
-},
-{
-  "id": "ticket-delete-todo",
-  "title": "DELETE /todos/:id",
-  "status": "open",
-  "priority": "medium",
-  "estimate": "S",
-  "dependencies": [
-    {
-      "ticketId": "ticket-create-todo",
-      "type": "requires"
-    }
-  ]
-}`}</pre>
+          <pre className="gs-code">{`[
+  {
+    "id": "ticket-create-todo",
+    "title": "POST /todos",
+    "dependencies": []
+  },
+  {
+    "id": "ticket-list-todos",
+    "title": "GET /todos",
+    "dependencies": [
+      { "ticketId": "ticket-create-todo", "type": "requires" }
+    ]
+  },
+  {
+    "id": "ticket-delete-todo",
+    "title": "DELETE /todos/:id",
+    "dependencies": [
+      { "ticketId": "ticket-create-todo", "type": "requires" }
+    ]
+  }
+]`}</pre>
           <div className="gs-annotation-box">
             <strong>Why this matters:</strong> Without explicit dependency data,
             an engine might start a ticket whose prerequisites are not done yet.

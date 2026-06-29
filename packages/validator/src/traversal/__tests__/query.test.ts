@@ -1,58 +1,42 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { findTicketById, findTicketByNumber, findByStatus, findByTag } from '../query';
+import { findTicketById, findTicketByNumber } from '../query';
 import type { OpenSpec } from '../../parser/types';
 
 const fixture: OpenSpec = JSON.parse(
-  readFileSync(join(__dirname, '..', '..', '..', '..', '..', 'versions', 'v1.0', 'examples', 'todo-api.oschema.json'), 'utf-8')
+  readFileSync(
+    join(__dirname, '..', '..', '..', '..', '..', 'versions', 'v1.1', 'examples', 'todo-api.oschema.json'),
+    'utf-8'
+  )
 );
 
 describe('findTicketById', () => {
-  it('returns correct ticket with valid UUID', () => {
-    const ticket = findTicketById(fixture, 'a1b2c3d4-0000-0000-0000-000000001001');
+  it('returns the matching ticket for a valid id', () => {
+    const ticket = findTicketById(fixture, 'tkt-create');
     expect(ticket).not.toBeNull();
-    expect(ticket!.title).toBe('Define Todo types and Zod schemas');
+    expect(ticket!.title).toBe('Implement POST /todos');
   });
 
-  it('returns null with invalid UUID', () => {
-    const ticket = findTicketById(fixture, 'non-existent-uuid');
-    expect(ticket).toBeNull();
+  it('returns null for an unknown id', () => {
+    expect(findTicketById(fixture, 'non-existent-id')).toBeNull();
   });
 });
 
 describe('findTicketByNumber', () => {
-  it('findTicketByNumber(1) returns "Define Todo types and Zod schemas"', () => {
+  it('findTicketByNumber(1) returns the first ticket', () => {
     const ticket = findTicketByNumber(fixture, 1);
     expect(ticket).not.toBeNull();
-    expect(ticket!.title).toBe('Define Todo types and Zod schemas');
-  });
-});
-
-describe('findByStatus', () => {
-  it('findByStatus("pending") returns Tickets 2 and 3', () => {
-    const tickets = findByStatus(fixture, 'pending');
-    expect(tickets).toHaveLength(2);
-    const numbers = tickets.map(t => t.ticketNumber).sort();
-    expect(numbers).toEqual([2, 3]);
+    expect(ticket!.title).toBe('Implement POST /todos');
   });
 
-  it('findByStatus("ready") returns Ticket 1', () => {
-    const tickets = findByStatus(fixture, 'ready');
-    expect(tickets).toHaveLength(1);
-    expect(tickets[0].ticketNumber).toBe(1);
-  });
-});
-
-describe('findByTag', () => {
-  it('findByTag("types") returns Ticket 1', () => {
-    const tickets = findByTag(fixture, 'types');
-    expect(tickets).toHaveLength(1);
-    expect(tickets[0].ticketNumber).toBe(1);
+  it('findTicketByNumber(2) returns the second ticket', () => {
+    const ticket = findTicketByNumber(fixture, 2);
+    expect(ticket).not.toBeNull();
+    expect(ticket!.title).toBe('Implement GET /todos');
   });
 
-  it('findByTag("nonexistent") returns empty array', () => {
-    const tickets = findByTag(fixture, 'nonexistent');
-    expect(tickets).toHaveLength(0);
+  it('returns null when no ticket has the given number', () => {
+    expect(findTicketByNumber(fixture, 99)).toBeNull();
   });
 });

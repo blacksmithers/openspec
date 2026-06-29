@@ -37,7 +37,6 @@ catch (e) {
 }
 const result = (0, validate_1.validate)(parsed);
 if (result.valid) {
-    const specs = (0, hierarchy_1.getSpecifications)(parsed);
     const epics = (0, hierarchy_1.getEpics)(parsed);
     const tickets = (0, hierarchy_1.getTickets)(parsed);
     const blueprints = (0, hierarchy_1.getBlueprints)(parsed);
@@ -45,10 +44,10 @@ if (result.valid) {
     for (const t of tickets) {
         depCount += (t.dependencies ?? []).length;
     }
-    console.log(`\u2713 Valid OpenSpec (v${parsed.openSpecVersion}) \u2014 ${format}`);
+    console.log(`\u2713 Valid OpenSpec (v${parsed.schemaVersion}) \u2014 ${format}`);
     console.log('');
-    console.log(`  Project:        ${parsed.project.name}`);
-    console.log(`  Specifications: ${specs.length}`);
+    console.log(`  Title:          ${parsed.title}`);
+    console.log(`  Project ID:     ${parsed.projectId}`);
     console.log(`  Epics:          ${epics.length}`);
     console.log(`  Tickets:        ${tickets.length}`);
     console.log(`  Blueprints:     ${blueprints.length}`);

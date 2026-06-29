@@ -15,7 +15,7 @@ export default function ValidatePage() {
 
         <h1>Validate It</h1>
         <p className="gs-page-lead">
-          Install the CLI validator and check your spec against the v1.0 schema.
+          Install the CLI validator and check your spec against the v1.1 schema.
           Catch errors before they reach your engine.
         </p>
 
@@ -35,11 +35,10 @@ export default function ValidatePage() {
           </p>
           <pre className="gs-code gs-code-terminal"><span className="gs-prompt">$ </span>openspec todo-api.oschema.json</pre>
           <div className="gs-terminal-output gs-output-success">
-            <pre>{`✔ Schema valid (v1.0)
+            <pre>{`✔ Schema valid (v1.1)
 ✔ 3 tickets, 0 errors
 ✔ Dependency graph: acyclic
-✔ All patternRefs resolve
-✔ All blueprintRefs resolve`}</pre>
+✔ All ticket dependencies resolve`}</pre>
           </div>
         </div>
 
@@ -47,7 +46,7 @@ export default function ValidatePage() {
           <h2>All three formats work</h2>
           <p>
             The validator auto-detects the format from the file extension. JSON,
-            YAML, and TOML are all supported:
+            YAML, and TOON are all supported:
           </p>
           <pre className="gs-code gs-code-terminal"><span className="gs-prompt">$ </span>openspec todo-api.oschema.yaml
 <span className="gs-prompt">$ </span>openspec todo-api.oschema.toon
@@ -66,10 +65,10 @@ export default function ValidatePage() {
           <div className="gs-terminal-output gs-output-error">
             <pre>{`✘ Validation failed
 
-  error: specifications[0].epics[0].tickets[0] must have required property 'status'
+  error: epics[0].tickets[0] must have required property 'ticketType'
 
-  at: /specifications/0/epics/0/tickets/0
-  fix: Add a "status" field with one of: open, in-progress, done, blocked`}</pre>
+  at: /epics/0/tickets/0
+  fix: Add a "ticketType" field with one of: implementation, verification`}</pre>
           </div>
 
           <h3>Circular dependency</h3>
@@ -83,23 +82,24 @@ export default function ValidatePage() {
   fix: Remove one dependency to break the cycle`}</pre>
           </div>
 
-          <h3>Dangling reference</h3>
+          <h3>Dangling dependency</h3>
           <pre className="gs-code gs-code-terminal"><span className="gs-prompt">$ </span>openspec dangling.oschema.json</pre>
           <div className="gs-terminal-output gs-output-error">
             <pre>{`✘ Validation failed
 
-  error: Unresolved patternRef "pattern-auth" in ticket "ticket-create-todo"
-  available patterns: pattern-rest-conventions, pattern-error-format
+  error: ticket "tkt-create-todo" depends on "tkt-missing" which does not exist
 
-  fix: Add pattern "pattern-auth" to the specification's patterns array,
-       or remove the reference from the ticket`}</pre>
+  at: /epics/0/tickets/0/dependencies
+  fix: Point the dependency at an existing ticketId,
+       or remove the dependency from the ticket`}</pre>
           </div>
 
           <div className="gs-annotation-box">
-            <strong>Why this matters:</strong> A ticket with status
-            &quot;in-progress&quot; whose dependency is still &quot;open&quot; is a
-            contradiction. The validator catches these so your engine never
-            starts work that shouldn&apos;t exist yet.{' '}
+            <strong>Why this matters:</strong> v1.1 tickets have no stored
+            &quot;status&quot; — whether a ticket is blocked or ready is inferred
+            from the dependency graph, not written down. That removes a whole
+            class of contradictions where a ticket&apos;s status disagrees with its
+            dependencies.{' '}
             <Link href="/why#status-that-shouldnt-exist">See: Work That Shouldn&apos;t Exist Yet →</Link>
           </div>
         </div>
@@ -129,6 +129,29 @@ jobs:
           <p>
             Any validation error will fail the build and show up in the PR
             checks.
+          </p>
+        </div>
+
+        <div className="gs-section">
+          <h2>Beyond shape: validate readiness</h2>
+          <p>
+            The CLI above answers <em>&quot;is this a well-formed OpenSpec
+            document?&quot;</em>. To answer <em>&quot;is this spec actually ready
+            to build?&quot;</em>, use{' '}
+            <a href="https://github.com/blacksmithers/crucible" target="_blank" rel="noopener noreferrer">crucible</a>{' '}
+            — an open-source, deterministic readiness engine (Python). It scores a
+            spec against a fixed rubric and reports a pass/fail gate, with no LLM
+            calls, so the result is reproducible in CI.
+          </p>
+          <pre className="gs-code gs-code-terminal"><span className="gs-prompt">$ </span>pip install crucible-forge</pre>
+          <pre className="gs-code">{`from crucible import validate, load_defaults
+
+result = validate(spec, {"phase": "planning_spec", "config": load_defaults()})
+print(result.scoring.gate_result)   # 'pass' | 'fail'
+print(result.scoring.local_score)   # e.g. 86.11`}</pre>
+          <p>
+            Use the <strong>schema</strong> validator to catch malformed specs and{' '}
+            <strong>crucible</strong> to gate on readiness — they are complementary.
           </p>
         </div>
 

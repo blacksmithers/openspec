@@ -1,0 +1,432 @@
+{
+  "schemaVersion": "1.1",
+  "id": "spec-bookstore",
+  "projectId": "proj-bookstore",
+  "title": "Bookstore Platform",
+  "description": "An online bookstore platform with a catalog, cart, and checkout, exercising the full OpenSpec v1.1 surface.",
+  "status": "planning",
+  "background": "The business is moving from a third-party storefront to an owned platform to control the catalog, pricing, and checkout experience.",
+  "goals": [
+    {
+      "id": "goal-browse",
+      "title": "Let shoppers find books fast",
+      "description": "Provide search and browse over the catalog with low latency.",
+      "type": "user",
+      "successCriteria": ["A shopper can find a book by title or author in under one second"],
+      "kpi": "Median search latency"
+    },
+    {
+      "id": "goal-checkout",
+      "title": "Convert carts to orders",
+      "description": "Offer a reliable checkout that captures payment and creates an order.",
+      "type": "business",
+      "successCriteria": ["A valid cart can be checked out into a paid order"],
+      "kpi": "Checkout success rate"
+    },
+    {
+      "id": "goal-resilient",
+      "title": "Stay resilient under load",
+      "description": "Keep the storefront responsive during traffic spikes.",
+      "type": "technical",
+      "successCriteria": ["The storefront stays within latency targets at peak load"]
+    },
+    {
+      "id": "goal-operable",
+      "title": "Be operable in production",
+      "description": "Expose health, metrics, and logs for on-call operators.",
+      "type": "operational",
+      "successCriteria": ["Operators can diagnose a failing request from telemetry alone"]
+    }
+  ],
+  "requirements": [
+    {
+      "id": "req-catalog",
+      "title": "Browse the catalog",
+      "description": "Shoppers can search and page through the book catalog.",
+      "type": "functional",
+      "source": "Product brief, section 2",
+      "acceptanceCriteria": [
+        {
+          "id": "ac-catalog",
+          "given": "a populated catalog",
+          "when": "the shopper searches by title",
+          "then": "matching books are returned, paged and ranked by relevance",
+          "order": 1
+        }
+      ],
+      "constraints": ["Search must return within the latency NFR target"]
+    },
+    {
+      "id": "req-cart",
+      "title": "Manage a cart",
+      "description": "Shoppers can add, update, and remove cart items.",
+      "type": "functional",
+      "acceptanceCriteria": [
+        {
+          "id": "ac-cart",
+          "given": "a shopper with a session",
+          "when": "they add a book to the cart",
+          "then": "the cart reflects the new item and updated total",
+          "order": 1
+        }
+      ],
+      "dependsOn": ["req-catalog"]
+    },
+    {
+      "id": "req-checkout",
+      "title": "Check out a cart",
+      "description": "Shoppers can convert a cart into a paid order.",
+      "type": "integration",
+      "acceptanceCriteria": [
+        {
+          "id": "ac-checkout",
+          "given": "a non-empty cart and valid payment details",
+          "when": "the shopper checks out",
+          "then": "payment is captured and an order is created",
+          "order": 1
+        }
+      ],
+      "dependsOn": ["req-cart"]
+    }
+  ],
+  "architecture": "A modular monolith split into catalog, cart, and checkout modules behind an API gateway. State lives in PostgreSQL; search is served from a read-optimized index; payments go through an external provider.",
+  "scope": {
+    "inScope": [
+      "Catalog search and browse",
+      "Cart management",
+      "Checkout and payment capture"
+    ],
+    "outOfScope": [
+      "Warehouse and fulfillment",
+      "Recommendations engine",
+      "Marketplace third-party sellers"
+    ],
+    "assumptions": [
+      "A single payment provider is integrated at launch",
+      "Catalog data is imported from the legacy storefront"
+    ],
+    "externalDependencies": [
+      "Payment provider API",
+      "Legacy catalog export"
+    ]
+  },
+  "techStack": [
+    { "id": "tech-ts", "name": "TypeScript", "version": "5", "layer": "backend", "rationale": "Shared types across modules.", "alternativesConsidered": ["Go", "Kotlin"] },
+    { "id": "tech-pg", "name": "PostgreSQL", "version": "15", "layer": "database", "rationale": "Transactional store for orders." },
+    { "id": "tech-search", "name": "OpenSearch", "layer": "integration", "rationale": "Relevance-ranked catalog search." },
+    { "id": "tech-otel", "name": "OpenTelemetry", "layer": "observability", "rationale": "Unified traces and metrics." }
+  ],
+  "folderStructures": [
+    {
+      "id": "fs-root",
+      "scope": "repository",
+      "description": "Module layout of the modular monolith.",
+      "content": "src/\n  catalog/\n  cart/\n  checkout/\n  gateway/\n  shared/"
+    }
+  ],
+  "sharedPatterns": [
+    {
+      "id": "sp-errors",
+      "name": "Error handling",
+      "description": "All modules surface errors as typed Result objects rather than thrown exceptions at boundaries.",
+      "codeStandards": {
+        "errorHandling": "Return Result<T, AppError> at module boundaries",
+        "naming": "camelCase for values, PascalCase for types"
+      },
+      "commonImports": ["import { Result, ok, err } from '../shared/result'"],
+      "returnTypes": { "handler": "Promise<Result<Response, AppError>>" }
+    }
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "spec-ac",
+      "given": "the platform is deployed",
+      "when": "a shopper completes a browse-to-checkout journey",
+      "then": "each step satisfies its requirement's acceptance criteria",
+      "order": 1
+    }
+  ],
+  "nonFunctionalRequirements": [
+    {
+      "id": "nfr-latency",
+      "description": "Catalog search stays fast under load.",
+      "category": "performance",
+      "metric": "p95 search latency",
+      "target": "< 200ms at 500 rps",
+      "measurementMethod": "k6 load test against staging"
+    },
+    {
+      "id": "nfr-pci",
+      "description": "Payment handling avoids storing raw card data.",
+      "category": "security",
+      "metric": "raw PAN stored",
+      "target": "never"
+    }
+  ],
+  "guardrails": [
+    {
+      "id": "gr-no-card",
+      "description": "Raw card numbers must never touch platform storage or logs.",
+      "category": "regulatory",
+      "rationale": "PCI scope must stay minimal.",
+      "consequence": "Storing PANs would pull the whole platform into PCI scope and create breach liability.",
+      "scope": "spec"
+    },
+    {
+      "id": "gr-idempotent-pay",
+      "description": "Payment capture must be idempotent per order.",
+      "category": "technical",
+      "rationale": "Checkout can be retried by clients.",
+      "consequence": "Non-idempotent capture would double-charge shoppers.",
+      "scope": "epic"
+    }
+  ],
+  "epicTargets": {
+    "foundation": 1,
+    "functional": 1,
+    "nonFunctional": 0,
+    "verification": 0
+  },
+  "estimatedMinutes": 1320,
+  "fieldDeclarations": {},
+  "epics": [
+    {
+      "id": "ep-foundation",
+      "specificationId": "spec-bookstore",
+      "title": "Platform foundation",
+      "description": "Set up the gateway, shared modules, persistence, and telemetry.",
+      "objective": "A deployable skeleton with persistence, gateway routing, and telemetry wired in.",
+      "order": 0,
+      "category": "foundation",
+      "estimatedMinutes": 480,
+      "scope": {
+        "inScope": ["API gateway", "Shared result/error types", "Database migrations", "Telemetry"],
+        "outOfScope": ["Business endpoints"]
+      },
+      "goalsCovered": ["goal-resilient", "goal-operable"],
+      "validationCommands": ["npm run build", "npm test"],
+      "sharedPatterns": [
+        { "id": "sp-errors", "name": "Error handling", "description": "Reuse the typed Result boundary pattern across foundation modules." }
+      ],
+      "fileStructures": [
+        { "id": "efs-1", "scope": "gateway", "content": "src/gateway/\n  router.ts\n  middleware/" }
+      ],
+      "tickets": [
+        {
+          "id": "tkt-gateway",
+          "epicId": "ep-foundation",
+          "ticketNumber": 1,
+          "title": "Set up the API gateway",
+          "description": "Add the gateway with routing and telemetry middleware.",
+          "ticketType": "implementation",
+          "complexity": "large",
+          "estimatedMinutes": 240,
+          "order": 0,
+          "acceptanceCriteria": [
+            { "id": "ac-gw", "given": "the gateway is configured", "when": "a request arrives", "then": "it is routed to the right module with a trace span", "order": 1 }
+          ],
+          "implementationSteps": [
+            { "id": "s1", "text": "Add the router and module mounting", "order": 1 },
+            { "id": "s2", "text": "Add the telemetry middleware", "order": 2 }
+          ],
+          "filesToBeCreated": ["src/gateway/router.ts", "src/gateway/middleware/telemetry.ts"],
+          "filesToBeModified": ["src/server.ts"],
+          "filesToBeDeleted": [],
+          "filesToBeReferenced": ["src/shared/result.ts"],
+          "testSpecification": {
+            "testTypes": ["unit", "integration", "build"],
+            "qualityGates": ["Routing covered by tests", "Trace spans emitted"],
+            "testCommands": ["npm test"],
+            "coverageTarget": 85
+          },
+          "guardrails": ["No request body is logged in full"],
+          "codeReferences": [
+            { "filePath": "src/shared/result.ts", "symbol": "Result", "description": "Boundary return type" }
+          ],
+          "typeReferences": [
+            { "filePath": "src/shared/http.ts", "typeName": "Handler", "description": "Module handler signature" }
+          ],
+          "codeSnippets": [
+            { "id": "cs-1", "language": "typescript", "description": "Telemetry middleware skeleton", "content": "export const withTelemetry: Middleware = (next) => async (req) => {\n  const span = tracer.start(req.path)\n  try { return await next(req) } finally { span.end() }\n}" }
+          ],
+          "typeSnippets": [
+            { "id": "ts-1", "language": "typescript", "description": "Handler type", "content": "export type Handler = (req: Request) => Promise<Result<Response, AppError>>" }
+          ],
+          "blueprintReferences": [
+            { "blueprintId": "bp-arch", "context": "Gateway position", "section": "Routing" }
+          ],
+          "dependencies": []
+        },
+        {
+          "id": "tkt-migrations",
+          "epicId": "ep-foundation",
+          "ticketNumber": 2,
+          "title": "Add database migrations",
+          "description": "Create the initial schema for books, carts, and orders.",
+          "ticketType": "implementation",
+          "complexity": "medium",
+          "estimatedMinutes": 240,
+          "order": 1,
+          "acceptanceCriteria": [
+            { "id": "ac-mig", "given": "an empty database", "when": "migrations run", "then": "the books, carts, and orders tables exist", "order": 1 }
+          ],
+          "implementationSteps": [
+            { "id": "s1", "text": "Write the initial migration", "order": 1 }
+          ],
+          "filesToBeCreated": ["migrations/0001_init.sql"],
+          "filesToBeModified": [],
+          "filesToBeDeleted": [],
+          "filesToBeReferenced": [],
+          "guardrails": [],
+          "codeReferences": [],
+          "typeReferences": [],
+          "blueprintReferences": [
+            { "blueprintId": "bp-erd", "context": "Initial schema" }
+          ],
+          "dependencies": [
+            { "ticketId": "tkt-gateway", "type": "requires" }
+          ],
+          "fieldDeclarations": {
+            "codeSnippets": { "value": "N/A", "reason": "Migrations are plain SQL files; no in-spec code snippet adds value here." }
+          }
+        }
+      ]
+    },
+    {
+      "id": "ep-checkout",
+      "specificationId": "spec-bookstore",
+      "title": "Cart and checkout",
+      "description": "Implement cart management and the checkout flow with payment capture.",
+      "objective": "A shopper can build a cart and complete a paid checkout.",
+      "order": 1,
+      "category": "functional",
+      "estimatedMinutes": 600,
+      "requirementsCovered": ["req-cart", "req-checkout"],
+      "nfrsCovered": ["nfr-pci"],
+      "apiContracts": [
+        {
+          "id": "api-checkout",
+          "name": "Checkout API",
+          "type": "rest",
+          "description": "POST /checkout captures payment and creates an order.",
+          "blueprintReferences": [
+            { "blueprintId": "bp-arch", "section": "Checkout" }
+          ]
+        }
+      ],
+      "tickets": [
+        {
+          "id": "tkt-cart",
+          "epicId": "ep-checkout",
+          "ticketNumber": 1,
+          "title": "Implement cart endpoints",
+          "description": "Add, update, and remove cart items.",
+          "ticketType": "implementation",
+          "complexity": "medium",
+          "estimatedMinutes": 300,
+          "order": 0,
+          "acceptanceCriteria": [
+            { "id": "ac-cart-1", "given": "a shopper session", "when": "they add an item", "then": "the cart total updates", "order": 1 }
+          ],
+          "implementationSteps": [
+            { "id": "s1", "text": "Add cart item routes", "order": 1 },
+            { "id": "s2", "text": "Recompute totals on mutation", "order": 2 }
+          ],
+          "filesToBeCreated": ["src/cart/routes.ts"],
+          "filesToBeModified": ["src/gateway/router.ts"],
+          "filesToBeDeleted": [],
+          "filesToBeReferenced": ["src/shared/result.ts"],
+          "guardrails": [],
+          "codeReferences": [],
+          "typeReferences": [],
+          "blueprintReferences": [],
+          "dependencies": []
+        },
+        {
+          "id": "tkt-checkout",
+          "epicId": "ep-checkout",
+          "ticketNumber": 2,
+          "title": "Implement checkout and payment capture",
+          "description": "Convert a cart into a paid order via the payment provider.",
+          "ticketType": "implementation",
+          "complexity": "xlarge",
+          "estimatedMinutes": 300,
+          "order": 1,
+          "acceptanceCriteria": [
+            { "id": "ac-co-1", "given": "a non-empty cart and valid payment", "when": "checkout runs", "then": "payment is captured idempotently and an order is created", "order": 1 }
+          ],
+          "implementationSteps": [
+            { "id": "s1", "text": "Validate the cart and payment details", "order": 1 },
+            { "id": "s2", "text": "Capture payment idempotently", "order": 2 },
+            { "id": "s3", "text": "Create the order on success", "order": 3 }
+          ],
+          "filesToBeCreated": ["src/checkout/routes.ts", "src/checkout/payment.ts"],
+          "filesToBeModified": ["src/gateway/router.ts"],
+          "filesToBeDeleted": [],
+          "filesToBeReferenced": ["src/cart/routes.ts"],
+          "testSpecification": {
+            "testTypes": ["unit", "integration", "contract"],
+            "qualityGates": ["Idempotency verified", "Payment provider contract test passes"],
+            "testCommands": ["npm test", "npm run test:contract"],
+            "coverageTarget": 90
+          },
+          "guardrails": ["Never log card data", "Capture must be idempotent per order"],
+          "codeReferences": [
+            { "filePath": "src/checkout/payment.ts", "symbol": "capturePayment" }
+          ],
+          "typeReferences": [
+            { "filePath": "src/checkout/types.ts", "typeName": "Order" }
+          ],
+          "blueprintReferences": [
+            { "blueprintId": "bp-checkout-seq", "context": "Capture flow" }
+          ],
+          "dependencies": [
+            { "ticketId": "tkt-cart", "type": "requires" }
+          ]
+        }
+      ]
+    }
+  ],
+  "blueprints": [
+    {
+      "id": "bp-arch",
+      "title": "System architecture",
+      "description": "Modules behind the gateway and their data stores.",
+      "slug": "system-architecture",
+      "category": "architecture",
+      "format": "mermaid",
+      "coverageType": "all",
+      "content": "flowchart TB\n  gw[API Gateway] --> catalog\n  gw --> cart\n  gw --> checkout\n  checkout --> pay[Payment Provider]",
+      "version": "1",
+      "order": 0,
+      "tags": ["overview"]
+    },
+    {
+      "id": "bp-erd",
+      "title": "Core data model",
+      "description": "Books, carts, and orders.",
+      "category": "erd",
+      "format": "mermaid",
+      "content": "erDiagram\n  BOOK ||--o{ CART_ITEM : referenced_by\n  CART ||--o{ CART_ITEM : contains\n  CART ||--o| ORDER : becomes",
+      "order": 1
+    },
+    {
+      "id": "bp-checkout-seq",
+      "title": "Checkout sequence",
+      "description": "Payment capture and order creation.",
+      "category": "sequence",
+      "format": "mermaid",
+      "content": "sequenceDiagram\n  Shopper->>Checkout: POST /checkout\n  Checkout->>Payment: capture(idempotencyKey)\n  Payment-->>Checkout: captured\n  Checkout->>DB: create order\n  Checkout-->>Shopper: 201 Order",
+      "order": 2
+    },
+    {
+      "id": "bp-adr-monolith",
+      "title": "ADR: modular monolith over microservices",
+      "description": "Why we start as a modular monolith.",
+      "category": "adr",
+      "format": "markdown",
+      "content": "# Context\nLaunch needs speed and low operational overhead.\n# Decision\nShip a modular monolith with clear module boundaries.\n# Consequences\nLower ops cost now; modules can be extracted later if needed.",
+      "order": 3
+    }
+  ]
+}

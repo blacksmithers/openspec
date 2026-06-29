@@ -8,6 +8,13 @@ export default function ValidatorPage() {
         Standalone offline validator for the OpenSpec. Supports JSON, YAML, and TOON.
         Zero SaaS dependency. Zero auth required.
       </p>
+      <p className="section-desc" style={{ marginTop: -8 }}>
+        This validates the <strong>shape</strong> of a spec. To check whether a spec is{' '}
+        <strong>ready to build</strong>, use{' '}
+        <a href="https://github.com/blacksmithers/crucible" target="_blank" rel="noopener noreferrer">crucible</a>{' '}
+        — a deterministic readiness engine (<code>pip install crucible-forge</code>) that scores a spec
+        against a rubric and reports a pass/fail gate.
+      </p>
 
       <div className="terminal-block">
         <div className="terminal-header">
@@ -22,17 +29,17 @@ export default function ValidatorPage() {
           <div style={{ height: 12 }} />
           <div><span className="t-comment"># Validate a JSON spec</span></div>
           <div><span className="t-prompt">$ </span><span className="t-cmd">openspec</span> <span className="t-path">./my-spec.oschema.json</span></div>
-          <div><span className="t-ok"><Check size={12} /> Valid OpenSpec (v1.0) — json</span></div>
+          <div><span className="t-ok"><Check size={12} /> Valid OpenSpec (v1.1) — json</span></div>
           <div style={{ height: 12 }} />
           <div><span className="t-comment"># Validate a TOON spec</span></div>
           <div><span className="t-prompt">$ </span><span className="t-cmd">openspec</span> <span className="t-path">./my-spec.oschema.toon</span></div>
-          <div><span className="t-ok"><Check size={12} /> Valid OpenSpec (v1.0) — toon</span></div>
+          <div><span className="t-ok"><Check size={12} /> Valid OpenSpec (v1.1) — toon</span></div>
           <div style={{ height: 12 }} />
           <div><span className="t-comment"># Invalid spec — get specific errors</span></div>
           <div><span className="t-prompt">$ </span><span className="t-cmd">openspec</span> <span className="t-path">./broken.oschema.json</span></div>
           <div><span className="t-err"><X size={12} /> Invalid OpenSpec:</span></div>
-          <div><span className="t-err">  - Missing required field: project.id</span></div>
-          <div><span className="t-err">  - specifications[0].status must be one of: draft, planning, ...</span></div>
+          <div><span className="t-err">  - Missing required field: schemaVersion</span></div>
+          <div><span className="t-err">  - goals must contain at least 3 items</span></div>
         </div>
       </div>
 

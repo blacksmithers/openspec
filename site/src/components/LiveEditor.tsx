@@ -2,16 +2,16 @@
 
 import { useState } from 'react';
 import { MINIMAL_EXAMPLE, FULL_EXAMPLE, YAML_EXAMPLE, TOON_EXAMPLE } from '@/data/examples';
-import { validateWithSchema, getSpecifications, getEpics, getTickets, parse, detectFormat, toJson, toYaml } from '@blacksmithers/openspec';
+import { validateWithSchema, getEpics, getTickets, parse, detectFormat, toJson, toYaml } from '@blacksmithers/openspec';
 import type { SpecFormat } from '@blacksmithers/openspec';
-import schema from '../../public/schema/v1.0/openspec-schema.json';
+import schema from '../../public/schema/v1.1/openspec-schema.json';
 import { ChevronRight, Check, X, Minus } from 'lucide-react';
 
 interface EditorResult {
   valid: boolean;
   version?: string;
-  project?: string;
-  specs?: number;
+  title?: string;
+  blueprints?: number;
   epics?: number;
   tickets?: number;
   errors?: string[];
@@ -41,14 +41,13 @@ export default function LiveEditor() {
       const parsed = parse(code, format);
       const validation = validateWithSchema(parsed as unknown, schema);
       if (validation.valid) {
-        const specs = getSpecifications(parsed);
         const epics = getEpics(parsed);
         const tickets = getTickets(parsed);
         setResult({
           valid: true,
-          version: parsed.openSpecVersion,
-          project: parsed.project?.name,
-          specs: specs.length,
+          version: parsed.schemaVersion,
+          title: parsed.title,
+          blueprints: parsed.blueprints?.length ?? 0,
           epics: epics.length,
           tickets: tickets.length,
           format,
@@ -155,7 +154,7 @@ export default function LiveEditor() {
         <div className="result-content">
           {!result && (
             <div style={{ color: 'var(--text-dim)', fontStyle: 'italic' }}>
-              Click &quot;Validate&quot; to check your spec against the v1.0 schema.
+              Click &quot;Validate&quot; to check your spec against the v1.1 schema.
             </div>
           )}
           {result && result.valid && (
@@ -164,12 +163,12 @@ export default function LiveEditor() {
               <div style={{ height: 1, background: 'var(--border)', margin: '4px 0' }} />
               <div className="result-info">
                 <div className="result-info-item">
-                  <span className="result-info-label">Project</span>
-                  <span style={{ color: 'var(--text)' }}>{result.project}</span>
+                  <span className="result-info-label">Title</span>
+                  <span style={{ color: 'var(--text)' }}>{result.title}</span>
                 </div>
                 <div className="result-info-item">
-                  <span className="result-info-label">Specs</span>
-                  <span style={{ color: 'var(--cyan)' }}>{result.specs}</span>
+                  <span className="result-info-label">Blueprints</span>
+                  <span style={{ color: 'var(--cyan)' }}>{result.blueprints}</span>
                 </div>
                 <div className="result-info-item">
                   <span className="result-info-label">Epics</span>

@@ -67,7 +67,7 @@ if (result.valid) {
 } else {
   for (const error of result.errors) {
     console.error(\`[\${error.path}] \${error.message}\`);
-    // [/specifications/0/epics/0/tickets/0] must have required property 'status'
+    // [/epics/0/tickets/0] must have required property 'ticketType'
   }
 }
 
@@ -92,17 +92,15 @@ const schemaResult = validateWithSchema(spec, schemaObject);`}</pre>
   getAllTicketsMap,
   findTicketById,
   findTicketByNumber,
-  findByStatus,
-  findByTag,
 } from '@blacksmithers/openspec';
 
-// Get all specifications from a parsed spec
-const specifications = getSpecifications(spec);
+// The document is a single specification
+const [specification] = getSpecifications(spec);
 
-// Get all epics across specifications
+// Get all epics
 const epics = getEpics(spec);
 
-// Get all tickets across all epics and specifications
+// Get all tickets across all epics
 const tickets = getTickets(spec);
 
 // Get all blueprints
@@ -112,12 +110,8 @@ const blueprints = getBlueprints(spec);
 const ticketMap = getAllTicketsMap(spec);
 
 // Find a specific ticket by ID or number
-const ticket = findTicketById(spec, 'ticket-create-todo');
-const ticketByNum = findTicketByNumber(spec, 42);
-
-// Filter tickets by status or tag
-const openTickets = findByStatus(spec, 'open');
-const apiTickets = findByTag(spec, 'api');`}</pre>
+const ticket = findTicketById(spec, 'tkt-create-todo');
+const ticketByNum = findTicketByNumber(spec, 42);`}</pre>
         </div>
 
         <div className="gs-section">
@@ -149,8 +143,8 @@ const blocked = getBlockedTickets(spec);
 const waves = getExecutionWaves(spec);
 // [[ticket-create-todo], [ticket-list-todos, ticket-delete-todo]]
 
-// Resolve inherited patterns for a specification
-const patterns = resolvePatterns(spec, 'spec-todo-api');`}</pre>
+// Resolve a ticket's inherited shared patterns (spec + its epic)
+const patterns = resolvePatterns(spec, 'tkt-create-todo');`}</pre>
         </div>
 
         <div className="gs-section">
@@ -160,23 +154,23 @@ const patterns = resolvePatterns(spec, 'spec-todo-api');`}</pre>
           </p>
           <pre className="gs-code">{`import type {
   OpenSpec,
-  Project,
   Specification,
+  Goal,
+  Requirement,
   Epic,
   Ticket,
   Blueprint,
-  Patterns,
   ValidationResult,
 } from '@blacksmithers/openspec';
 
 // Full type safety when working with specs
 function processTicket(ticket: Ticket): void {
-  console.log(ticket.id, ticket.title, ticket.status);
+  console.log(ticket.id, ticket.title, ticket.ticketType);
 }
 
 function buildDashboard(spec: OpenSpec): void {
-  const project: Project = spec.project;
-  const specifications: Specification[] = spec.specifications;
+  const title: string = spec.title;
+  const epics: Epic[] = spec.epics;
   // ...
 }`}</pre>
         </div>
@@ -235,6 +229,12 @@ function buildDashboard(spec: OpenSpec): void {
             That&apos;s the full tour. You have a spec, it validates, and you can
             work with it in code. The format is open, the tooling is yours to
             extend.
+          </p>
+          <p>
+            Need to score a spec&apos;s <strong>readiness</strong> from code (Python)?{' '}
+            <a href="https://github.com/blacksmithers/crucible" target="_blank" rel="noopener noreferrer">crucible</a>{' '}
+            (<code>pip install crucible-forge</code>) returns a deterministic
+            pass/fail gate and a numeric score against a fixed rubric.
           </p>
         </div>
       </div>

@@ -6,7 +6,6 @@ import { detectFormat } from '../parser/detect';
 import type { SpecFormat } from '../parser/detect';
 import { validate } from '../validator/validate';
 import {
-  getSpecifications,
   getEpics,
   getTickets,
   getBlueprints,
@@ -47,7 +46,6 @@ try {
 
 const result = validate(parsed);
 if (result.valid) {
-  const specs = getSpecifications(parsed);
   const epics = getEpics(parsed);
   const tickets = getTickets(parsed);
   const blueprints = getBlueprints(parsed);
@@ -57,11 +55,11 @@ if (result.valid) {
   }
 
   console.log(
-    `\u2713 Valid OpenSpec (v${parsed.openSpecVersion}) \u2014 ${format}`
+    `\u2713 Valid OpenSpec (v${parsed.schemaVersion}) \u2014 ${format}`
   );
   console.log('');
-  console.log(`  Project:        ${parsed.project.name}`);
-  console.log(`  Specifications: ${specs.length}`);
+  console.log(`  Title:          ${parsed.title}`);
+  console.log(`  Project ID:     ${parsed.projectId}`);
   console.log(`  Epics:          ${epics.length}`);
   console.log(`  Tickets:        ${tickets.length}`);
   console.log(`  Blueprints:     ${blueprints.length}`);

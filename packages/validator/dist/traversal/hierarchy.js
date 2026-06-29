@@ -4,16 +4,20 @@ exports.getSpecifications = getSpecifications;
 exports.getEpics = getEpics;
 exports.getTickets = getTickets;
 exports.getBlueprints = getBlueprints;
+/**
+ * In v1.1 the root document IS the specification, so this returns the spec
+ * itself wrapped in a single-element array.
+ */
 function getSpecifications(spec) {
-    return spec.specifications ?? [];
+    return [spec];
 }
 function getEpics(spec) {
-    return (spec.specifications ?? []).flatMap((s) => s.epics ?? []);
+    return spec.epics ?? [];
 }
 function getTickets(spec) {
     return getEpics(spec).flatMap((e) => e.tickets ?? []);
 }
 function getBlueprints(spec) {
-    return (spec.specifications ?? []).flatMap((s) => s.blueprints ?? []);
+    return spec.blueprints ?? [];
 }
 //# sourceMappingURL=hierarchy.js.map

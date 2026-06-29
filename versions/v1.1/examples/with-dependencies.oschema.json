@@ -1,0 +1,304 @@
+{
+  "schemaVersion": "1.1",
+  "id": "spec-ingest-pipeline",
+  "projectId": "proj-ingest",
+  "title": "Event Ingest Pipeline",
+  "description": "A batch pipeline that ingests, validates, transforms, and loads events, with an explicit ticket dependency graph.",
+  "status": "planning",
+  "background": "Downstream analytics need clean, deduplicated events. The pipeline stages must run in a strict order, which the ticket dependency graph encodes.",
+  "goals": [
+    {
+      "id": "goal-clean",
+      "title": "Deliver clean events downstream",
+      "description": "Validate and deduplicate raw events before they reach analytics.",
+      "type": "business",
+      "successCriteria": ["No invalid or duplicate event reaches the warehouse"]
+    },
+    {
+      "id": "goal-order",
+      "title": "Run stages in a safe order",
+      "description": "Encode stage ordering so transform never runs before validation.",
+      "type": "technical",
+      "successCriteria": ["Each stage runs only after its prerequisites complete"]
+    },
+    {
+      "id": "goal-observable",
+      "title": "Make runs observable",
+      "description": "Emit per-stage metrics so operators can see where a run stands.",
+      "type": "operational",
+      "successCriteria": ["Each stage emits start, success, and failure metrics"]
+    }
+  ],
+  "requirements": [
+    {
+      "id": "req-ingest",
+      "title": "Ingest raw events",
+      "description": "Read raw events from the source bucket into the pipeline.",
+      "type": "functional",
+      "acceptanceCriteria": [
+        {
+          "id": "ac-ingest",
+          "given": "raw event files in the source bucket",
+          "when": "the ingest stage runs",
+          "then": "all event files are read and staged for validation",
+          "order": 1
+        }
+      ]
+    },
+    {
+      "id": "req-validate",
+      "title": "Validate events",
+      "description": "Reject events that do not match the event schema.",
+      "type": "functional",
+      "acceptanceCriteria": [
+        {
+          "id": "ac-validate",
+          "given": "staged raw events",
+          "when": "the validate stage runs",
+          "then": "invalid events are quarantined and valid events proceed",
+          "order": 1
+        }
+      ]
+    },
+    {
+      "id": "req-load",
+      "title": "Load events",
+      "description": "Write transformed events into the warehouse.",
+      "type": "integration",
+      "acceptanceCriteria": [
+        {
+          "id": "ac-load",
+          "given": "transformed events",
+          "when": "the load stage runs",
+          "then": "events are written idempotently to the warehouse",
+          "order": 1
+        }
+      ]
+    }
+  ],
+  "architecture": "A staged batch pipeline (ingest -> validate -> transform -> load) orchestrated as ordered jobs. Each stage is independently retryable and emits metrics.",
+  "scope": {
+    "inScope": [
+      "Reading raw events",
+      "Schema validation and quarantine",
+      "Transformation and idempotent load"
+    ],
+    "outOfScope": [
+      "Real-time streaming ingestion",
+      "Backfill of historical events"
+    ],
+    "externalDependencies": ["Source object store", "Analytics warehouse"]
+  },
+  "techStack": [
+    {
+      "id": "tech-python",
+      "name": "Python",
+      "version": "3.12",
+      "layer": "backend",
+      "rationale": "Rich data tooling for batch transformation."
+    },
+    {
+      "id": "tech-warehouse",
+      "name": "Snowflake",
+      "layer": "database",
+      "rationale": "Target warehouse for analytics consumers."
+    }
+  ],
+  "folderStructures": [
+    {
+      "id": "fs-pipeline",
+      "scope": "pipeline",
+      "content": "pipeline/\n  ingest.py\n  validate.py\n  transform.py\n  load.py\n  metrics.py"
+    }
+  ],
+  "acceptanceCriteria": [],
+  "nonFunctionalRequirements": [
+    {
+      "id": "nfr-throughput",
+      "description": "The pipeline keeps up with daily event volume.",
+      "category": "scalability",
+      "metric": "events processed per run",
+      "target": ">= 10M events within a 30-minute window"
+    }
+  ],
+  "guardrails": [
+    {
+      "id": "gr-idempotent",
+      "description": "The load stage must be idempotent.",
+      "category": "technical",
+      "rationale": "Stages can be retried after partial failures.",
+      "consequence": "A non-idempotent load would create duplicate warehouse rows on retry.",
+      "scope": "epic"
+    }
+  ],
+  "epics": [
+    {
+      "id": "ep-pipeline",
+      "specificationId": "spec-ingest-pipeline",
+      "title": "Build the staged pipeline",
+      "description": "Implement each pipeline stage and wire the ordering between them.",
+      "objective": "A reliable ingest-to-load pipeline with explicit stage ordering.",
+      "order": 0,
+      "category": "functional",
+      "validationCommands": ["pytest", "python -m pipeline.run --dry-run"],
+      "tickets": [
+        {
+          "id": "tkt-ingest",
+          "epicId": "ep-pipeline",
+          "ticketNumber": 1,
+          "title": "Implement ingest stage",
+          "description": "Read raw events from the source bucket and stage them.",
+          "ticketType": "implementation",
+          "complexity": "medium",
+          "estimatedMinutes": 120,
+          "order": 0,
+          "acceptanceCriteria": [
+            { "id": "ac-i", "given": "raw files", "when": "ingest runs", "then": "files are staged", "order": 1 }
+          ],
+          "implementationSteps": [
+            { "id": "s1", "text": "List source objects", "order": 1 },
+            { "id": "s2", "text": "Stage objects for validation", "order": 2 }
+          ],
+          "filesToBeCreated": ["pipeline/ingest.py"],
+          "filesToBeModified": [],
+          "filesToBeDeleted": [],
+          "filesToBeReferenced": ["pipeline/metrics.py"],
+          "guardrails": [],
+          "codeReferences": [],
+          "typeReferences": [],
+          "blueprintReferences": [],
+          "dependencies": []
+        },
+        {
+          "id": "tkt-validate",
+          "epicId": "ep-pipeline",
+          "ticketNumber": 2,
+          "title": "Implement validate stage",
+          "description": "Validate staged events and quarantine invalid ones.",
+          "ticketType": "implementation",
+          "complexity": "medium",
+          "estimatedMinutes": 120,
+          "order": 1,
+          "acceptanceCriteria": [
+            { "id": "ac-v", "given": "staged events", "when": "validate runs", "then": "invalid events are quarantined", "order": 1 }
+          ],
+          "implementationSteps": [
+            { "id": "s1", "text": "Load the event schema", "order": 1 },
+            { "id": "s2", "text": "Quarantine non-conforming events", "order": 2 }
+          ],
+          "filesToBeCreated": ["pipeline/validate.py"],
+          "filesToBeModified": [],
+          "filesToBeDeleted": [],
+          "filesToBeReferenced": ["pipeline/ingest.py"],
+          "guardrails": [],
+          "codeReferences": [],
+          "typeReferences": [],
+          "blueprintReferences": [],
+          "dependencies": [
+            { "ticketId": "tkt-ingest", "type": "requires" }
+          ]
+        },
+        {
+          "id": "tkt-transform",
+          "epicId": "ep-pipeline",
+          "ticketNumber": 3,
+          "title": "Implement transform stage",
+          "description": "Transform validated events into the warehouse shape.",
+          "ticketType": "implementation",
+          "complexity": "large",
+          "estimatedMinutes": 180,
+          "order": 2,
+          "acceptanceCriteria": [
+            { "id": "ac-t", "given": "valid events", "when": "transform runs", "then": "events match the warehouse shape", "order": 1 }
+          ],
+          "implementationSteps": [
+            { "id": "s1", "text": "Map event fields to warehouse columns", "order": 1 }
+          ],
+          "filesToBeCreated": ["pipeline/transform.py"],
+          "filesToBeModified": [],
+          "filesToBeDeleted": [],
+          "filesToBeReferenced": ["pipeline/validate.py"],
+          "guardrails": [],
+          "codeReferences": [],
+          "typeReferences": [],
+          "blueprintReferences": [],
+          "dependencies": [
+            { "ticketId": "tkt-validate", "type": "requires" }
+          ]
+        },
+        {
+          "id": "tkt-load",
+          "epicId": "ep-pipeline",
+          "ticketNumber": 4,
+          "title": "Implement load stage",
+          "description": "Idempotently load transformed events into the warehouse.",
+          "ticketType": "implementation",
+          "complexity": "medium",
+          "estimatedMinutes": 120,
+          "order": 3,
+          "acceptanceCriteria": [
+            { "id": "ac-l", "given": "transformed events", "when": "load runs", "then": "events are written idempotently", "order": 1 }
+          ],
+          "implementationSteps": [
+            { "id": "s1", "text": "Upsert events by natural key", "order": 1 }
+          ],
+          "filesToBeCreated": ["pipeline/load.py"],
+          "filesToBeModified": [],
+          "filesToBeDeleted": [],
+          "filesToBeReferenced": ["pipeline/transform.py"],
+          "guardrails": ["Use MERGE to keep the load idempotent"],
+          "codeReferences": [],
+          "typeReferences": [],
+          "blueprintReferences": [],
+          "dependencies": [
+            { "ticketId": "tkt-transform", "type": "requires" }
+          ]
+        },
+        {
+          "id": "tkt-e2e",
+          "epicId": "ep-pipeline",
+          "ticketNumber": 5,
+          "title": "End-to-end pipeline verification",
+          "description": "Verify a full run produces clean warehouse rows from sample input.",
+          "ticketType": "verification",
+          "complexity": "small",
+          "estimatedMinutes": 60,
+          "order": 4,
+          "acceptanceCriteria": [
+            { "id": "ac-e2e", "given": "sample raw events", "when": "the full pipeline runs", "then": "the warehouse contains exactly the expected clean rows", "order": 1 }
+          ],
+          "implementationSteps": [
+            { "id": "s1", "text": "Run the pipeline against the sample fixture and assert warehouse contents", "order": 1 }
+          ],
+          "filesToBeCreated": ["tests/test_pipeline_e2e.py"],
+          "filesToBeModified": [],
+          "filesToBeDeleted": [],
+          "filesToBeReferenced": ["pipeline/load.py"],
+          "testSpecification": {
+            "testTypes": ["e2e"],
+            "qualityGates": ["Warehouse output matches the golden fixture"],
+            "testCommands": ["pytest tests/test_pipeline_e2e.py"]
+          },
+          "guardrails": [],
+          "codeReferences": [],
+          "typeReferences": [],
+          "blueprintReferences": [],
+          "dependencies": [
+            { "ticketId": "tkt-load", "type": "requires" }
+          ]
+        }
+      ]
+    }
+  ],
+  "blueprints": [
+    {
+      "id": "bp-stage-order",
+      "title": "Pipeline stage ordering",
+      "description": "The strict ordering of pipeline stages.",
+      "category": "flowchart",
+      "format": "mermaid",
+      "content": "flowchart LR\n  ingest --> validate --> transform --> load",
+      "order": 0
+    }
+  ]
+}

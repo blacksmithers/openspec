@@ -40,10 +40,10 @@ const LESSONS: Lesson[] = [
     consequence:
       'The agent hallucinated file paths that didn\'t exist, invented API signatures incompatible with the codebase, and created types that duplicated ones already defined three directories away. The code compiled. It was wrong in every way that mattered.',
     solution:
-      'Every ticket now carries explicit implementation instructions: filesToCreate lists exact paths for new files. filesToModify names every existing file the agent will touch. codeReferences provides the actual signatures and patterns the agent must follow. typeReferences defines the TypeScript types the agent must use — not invent.',
+      'Every ticket now carries explicit implementation instructions: filesToBeCreated lists exact paths for new files. filesToBeModified names every existing file the agent will touch. codeReferences provides the actual signatures and patterns the agent must follow. typeReferences defines the TypeScript types the agent must use — not invent.',
     schemaFields: [
-      'implementation.filesToCreate',
-      'implementation.filesToModify',
+      'filesToBeCreated',
+      'filesToBeModified',
       'codeReferences',
       'typeReferences',
     ],
@@ -59,10 +59,10 @@ const LESSONS: Lesson[] = [
     consequence:
       'Three-way merge conflicts on every file touched by more than one agent. Manual resolution wiped out the productivity gains of parallel execution. The more agents ran simultaneously, the worse it got.',
     solution:
-      'With filesToCreate and filesToModify declared in the schema, a scheduler can compute which tickets touch which files before execution starts. Tickets that share files go into the same wave — sequential within the wave, parallel across waves. Zero file collisions by construction, not by luck.',
+      'With filesToBeCreated and filesToBeModified declared in the schema, a scheduler can compute which tickets touch which files before execution starts. Tickets that share files go into the same wave — sequential within the wave, parallel across waves. Zero file collisions by construction, not by luck.',
     schemaFields: [
-      'implementation.filesToCreate',
-      'implementation.filesToModify',
+      'filesToBeCreated',
+      'filesToBeModified',
     ],
     principle:
       'Declare what you\'ll touch before you touch it. Let the scheduler do the math.',
@@ -144,14 +144,13 @@ const LESSONS: Lesson[] = [
     title: 'The Feedback Loop That Teaches Decomposition',
     slug: 'feedback-loop',
     problem:
-      'Without tracking estimated vs. actual time, there was no signal to calibrate decomposition quality. Tickets estimated at 2 hours that took 20 were indistinguishable from tickets that took 2.',
+      'Without tracking estimated vs. actual time, there was no signal to calibrate decomposition quality. Tickets estimated at 120 minutes that took 1,200 were indistinguishable from tickets that took 120.',
     consequence:
       'Decomposition quality stagnated. The system produced tickets that were either too granular (wasting orchestration overhead) or too broad (exceeding context windows and agent capabilities). There was no feedback mechanism to improve.',
     solution:
-      'Both estimatedHours and actualHours live on every ticket. The delta between them is the decomposition quality signal. If actual consistently exceeds estimated, the tickets aren\'t atomic enough — the decomposer needs to produce smaller units. If actual is consistently a fraction of estimated, tickets are over-decomposed. The schema carries the evidence that the next decomposition cycle needs to improve.',
+      'Every ticket carries an estimatedMinutes figure. The decomposer commits to a number; the executing engine records what each ticket actually took. The delta between the two is the decomposition quality signal. If actuals consistently exceed the estimate, the tickets aren\'t atomic enough — the decomposer needs to produce smaller units. If actuals are consistently a fraction of the estimate, tickets are over-decomposed. The estimate lives in the schema so every cycle has the evidence it needs to improve.',
     schemaFields: [
-      'ticket.estimatedHours',
-      'ticket.actualHours',
+      'ticket.estimatedMinutes',
     ],
     principle:
       'Agents don\'t learn from memory. They learn from data in the schema. Build the feedback loop into the format.',
@@ -165,12 +164,12 @@ const LESSONS: Lesson[] = [
     consequence:
       'The agent produces plausible but wrong output. It invents what it can\'t remember. And because the output looks correct — syntactically valid, structurally reasonable — the error isn\'t caught until integration, when the damage is already done.',
     solution:
-      'Tickets are designed to be atomic and self-contained. Each ticket carries its complete implementation context: filesToCreate, filesToModify, codeReferences, typeReferences, inherited Patterns, resolved dependencies. The agent doesn\'t need to remember anything from previous tickets or earlier conversation turns. The ticket is the entire context. The schema is designed for intentional amnesia.',
+      'Tickets are designed to be atomic and self-contained. Each ticket carries its complete implementation context: implementationSteps, filesToBeCreated, filesToBeModified, codeReferences, typeReferences, inherited sharedPatterns, resolved dependencies. The agent doesn\'t need to remember anything from previous tickets or earlier conversation turns. The ticket is the entire context. The schema is designed for intentional amnesia.',
     schemaFields: [
-      'ticket.implementation (complete)',
+      'ticket.implementationSteps (complete)',
       'ticket.codeReferences (inline)',
       'ticket.typeReferences (inline)',
-      'patterns (inherited from specification)',
+      'sharedPatterns (inherited from specification)',
     ],
     principle:
       'Assume the agent remembers nothing. Make every ticket a complete world.',
@@ -238,46 +237,39 @@ function HumanVsAIComparison() {
           <pre className="why-ticket-code">
 {`{
   "title": "Implement JWT auth middleware",
-  "implementation": {
-    "filesToCreate": [
-      "src/middleware/auth.middleware.ts",
-      "src/types/auth.types.ts"
-    ],
-    "filesToModify": [
-      "src/routes/index.ts",
-      "src/types/express.d.ts"
-    ],
-    "steps": [
-      "Create AuthPayload and AuthRequest types",
-      "Implement verifyToken middleware",
-      "Add middleware to protected route group",
-      "Extend Express Request type declaration"
-    ]
-  },
+  "ticketType": "implementation",
+  "implementationSteps": [
+    { "id": "s1", "text": "Create AuthPayload and AuthRequest types", "order": 1 },
+    { "id": "s2", "text": "Implement verifyToken middleware", "order": 2 },
+    { "id": "s3", "text": "Add middleware to protected route group", "order": 3 },
+    { "id": "s4", "text": "Extend Express Request type declaration", "order": 4 }
+  ],
+  "filesToBeCreated": [
+    "src/middleware/auth.middleware.ts",
+    "src/types/auth.types.ts"
+  ],
+  "filesToBeModified": [
+    "src/routes/index.ts",
+    "src/types/express.d.ts"
+  ],
   "codeReferences": [{
-    "name": "JwtConfig",
-    "code": "src/config/jwt.config.ts::JwtConfig",
-    "language": "typescript"
+    "filePath": "src/config/jwt.config.ts",
+    "symbol": "JwtConfig"
   }],
   "typeReferences": [{
-    "name": "UserDocument",
-    "definition": "src/models/user.model.ts::UserDocument"
+    "filePath": "src/models/user.model.ts",
+    "typeName": "UserDocument"
   }],
-  "acceptanceCriteria": [
-    "Returns 401 for missing token",
-    "Returns 403 for expired token",
-    "req.user contains decoded UserDocument",
-    "Existing routes remain unaffected"
-  ],
   "testSpecification": {
-    "gates": ["unit", "integration"],
-    "commands": ["npm run test:auth"]
+    "testTypes": ["unit", "integration"],
+    "qualityGates": ["Auth paths covered by tests"],
+    "testCommands": ["npm run test:auth"]
   },
   "dependencies": [{
-    "dependsOnId": "uuid-of-user-model-ticket",
+    "ticketId": "tkt-user-model",
     "type": "requires"
   }],
-  "estimatedHours": 2
+  "estimatedMinutes": 120
 }`}
           </pre>
           <div className="why-ticket-verdict why-verdict-pass">

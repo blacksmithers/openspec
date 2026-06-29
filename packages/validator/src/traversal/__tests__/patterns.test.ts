@@ -4,38 +4,32 @@ import { join } from 'path';
 import { resolvePatterns } from '../patterns';
 import type { OpenSpec } from '../../parser/types';
 
+// full: spec-level sharedPatterns [sp-errors]; ep-foundation also has
+// sharedPatterns [sp-errors]; ep-checkout has none.
 const fixture: OpenSpec = JSON.parse(
-  readFileSync(join(__dirname, '..', '..', '..', '..', '..', 'versions', 'v1.0', 'examples', 'todo-api.oschema.json'), 'utf-8')
+  readFileSync(
+    join(__dirname, '..', '..', '..', '..', '..', 'versions', 'v1.1', 'examples', 'full.oschema.json'),
+    'utf-8'
+  )
 );
 
 describe('resolvePatterns', () => {
-  it('returns the specification-level Patterns for Ticket 1', () => {
-    const patterns = resolvePatterns(fixture, 'a1b2c3d4-0000-0000-0000-000000001001');
+  it('merges spec-level and epic-level shared patterns for a ticket', () => {
+    const patterns = resolvePatterns(fixture, 'tkt-gateway');
     expect(patterns).not.toBeNull();
-    expect(patterns!.codeStandards).toBeDefined();
-    expect(patterns!.commonImports).toBeDefined();
-    expect(patterns!.returnTypes).toBeDefined();
+    // spec-level sp-errors + epic-level sp-errors
+    expect(patterns).toHaveLength(2);
+    expect(patterns!.every((p) => p.name === 'Error handling')).toBe(true);
   });
 
-  it('returns the same specification-level Patterns for Ticket 2', () => {
-    const patterns = resolvePatterns(fixture, 'a1b2c3d4-0000-0000-0000-000000001002');
+  it('returns only spec-level patterns when the epic defines none', () => {
+    const patterns = resolvePatterns(fixture, 'tkt-cart');
     expect(patterns).not.toBeNull();
-    expect(patterns!.codeStandards).toBeDefined();
-    expect(patterns!.commonImports).toBeDefined();
-    expect(patterns!.returnTypes).toBeDefined();
+    expect(patterns).toHaveLength(1);
+    expect(patterns![0].id).toBe('sp-errors');
   });
 
-  it('returns null for non-existent ID', () => {
-    const patterns = resolvePatterns(fixture, 'non-existent-id');
-    expect(patterns).toBeNull();
-  });
-
-  it('returned patterns contain codeStandards, commonImports, returnTypes', () => {
-    const patterns = resolvePatterns(fixture, 'a1b2c3d4-0000-0000-0000-000000001001');
-    expect(patterns).toMatchObject({
-      codeStandards: expect.any(Object),
-      commonImports: expect.any(Array),
-      returnTypes: expect.any(Object),
-    });
+  it('returns null for a non-existent ticket id', () => {
+    expect(resolvePatterns(fixture, 'non-existent-id')).toBeNull();
   });
 });

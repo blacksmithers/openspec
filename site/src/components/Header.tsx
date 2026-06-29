@@ -43,7 +43,7 @@ export default function Header() {
             </text>
           </g>
         </svg>
-        <div className="version-pill">v1.0</div>
+        <div className="version-pill">v1.1</div>
       </div>
       <div className="header-right">
         <a className="header-link" href="https://specforge.tech" target="_blank" rel="noopener noreferrer">

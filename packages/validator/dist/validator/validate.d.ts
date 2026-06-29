@@ -1,5 +1,5 @@
 import type { ValidationResult } from '../parser/types';
-export declare const currentVersion = "1.0";
+export declare const currentVersion = "1.1";
 /**
  * Browser-safe validation: validates a spec against a provided schema object.
  * Does NOT use any Node.js APIs (no require, no fs, no path).

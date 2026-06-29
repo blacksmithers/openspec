@@ -7,6 +7,17 @@ export default function ChangelogPage() {
       </p>
 
       <div className="changelog-entry">
+        <div className="changelog-version">v1.1.0</div>
+        <div className="changelog-date">June 2026 — Single-Specification Reshape</div>
+        <div className="changelog-item">Document root is now a single Specification (Project wrapper and specifications[] array removed)</div>
+        <div className="changelog-item">Structured planning core: goals, requirements, scope, NFRs, guardrails, techStack, folderStructures</div>
+        <div className="changelog-item">New: epicTargets, fieldDeclarations (N/A escape hatch), sharedPatterns, estimatedMinutes</div>
+        <div className="changelog-item">schemaVersion replaces openSpecVersion; ticket dependency uses ticketId</div>
+        <div className="changelog-item">Strict schema (additionalProperties: false); status/priority enums removed</div>
+        <div className="changelog-item">v1.0 retained permanently at its existing schema URL</div>
+      </div>
+
+      <div className="changelog-entry">
         <div className="changelog-version">v1.0.0</div>
         <div className="changelog-date">March 2026 — Initial Release</div>
         <div className="changelog-item">Initial OpenSpec v1.0 schema published</div>

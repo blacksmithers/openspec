@@ -3,7 +3,7 @@ import AppShell from '@/components/AppShell';
 import ValidatorPage from '@/components/ValidatorPage';
 
 export const metadata: Metadata = {
-  title: 'Validator CLI — OpenSpec v1.0',
+  title: 'Validator CLI — OpenSpec v1.1',
   description: 'Standalone offline validator for OpenSpec. Supports JSON, YAML, and TOON with zero SaaS dependency.',
   alternates: {
     canonical: 'https://openspec.tech/validator/',

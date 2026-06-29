@@ -14,11 +14,3 @@ export function findTicketByNumber(
 ): Ticket | null {
   return getTickets(spec).find((t) => t.ticketNumber === ticketNumber) ?? null;
 }
-
-export function findByStatus(spec: OpenSpec, status: string): Ticket[] {
-  return getTickets(spec).filter((t) => t.status === status);
-}
-
-export function findByTag(spec: OpenSpec, tag: string): Ticket[] {
-  return getTickets(spec).filter((t) => (t.tags ?? []).includes(tag));
-}

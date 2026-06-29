@@ -6,7 +6,7 @@ export default function OverviewPage() {
     <div className="content">
       <div className="overview-hero">
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600, letterSpacing: 2, color: 'var(--accent)', marginBottom: 16, textTransform: 'uppercase' as const, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Diamond size={12} /> Open Standard · v1.0
+          <Diamond size={12} /> Open Standard · v1.1
         </div>
         <h1>
           OpenSpec
@@ -31,20 +31,15 @@ export default function OverviewPage() {
         <div className="hierarchy-title">Data Hierarchy</div>
         <div className="hierarchy-tree">
           <div className="h-level h-indent-0">
-            <span className="h-node h-node-project">Project</span>
-            <span className="h-arrow">→ root container</span>
+            <span className="h-node h-node-spec">Specification</span>
+            <span className="h-arrow">→ the document root</span>
           </div>
           <div className="h-level h-indent-1">
-            <span className="h-connector">├─</span>
-            <span className="h-node h-node-spec">Specification</span>
-            <span className="h-arrow">→ feature or module</span>
-          </div>
-          <div className="h-level h-indent-2">
             <span className="h-connector">├─</span>
             <span className="h-node h-node-epic">Epic</span>
             <span className="h-arrow">→ work group</span>
           </div>
-          <div className="h-level h-indent-3">
+          <div className="h-level h-indent-2">
             <span className="h-connector">└─</span>
             <span className="h-node h-node-ticket">Ticket</span>
             <span className="h-arrow">→ atomic unit of work</span>
@@ -75,13 +70,12 @@ export default function OverviewPage() {
           <div className="ov-ticket ov-ticket-agent">
             <div className="ov-ticket-header">OpenSpec Ticket</div>
             <pre className="ov-ticket-code">{`{
-  "implementation": {
-    "filesToCreate": ["src/middleware/auth.ts"],
-    "filesToModify": ["src/routes/index.ts"]
-  },
-  "codeReferences": [{ "name": "JwtConfig", ... }],
-  "typeReferences": [{ "name": "UserDocument", ... }],
-  "dependencies": [{ "type": "requires", ... }]
+  "implementationSteps": [{ "text": "Add auth middleware", ... }],
+  "filesToBeCreated": ["src/middleware/auth.ts"],
+  "filesToBeModified": ["src/routes/index.ts"],
+  "codeReferences": [{ "filePath": "src/auth/jwt.ts", "symbol": "JwtConfig" }],
+  "typeReferences": [{ "filePath": "src/types.ts", "typeName": "User" }],
+  "dependencies": [{ "ticketId": "tkt-1", "type": "requires" }]
 }`}</pre>
             <div className="ov-ticket-footer ov-footer-pass"><Check size={14} /> Every reference explicit, every exit verifiable</div>
           </div>
@@ -108,7 +102,7 @@ export default function OverviewPage() {
         <Link href="/editor" className="overview-card">
           <div className="overview-card-icon"><Code size={14} /></div>
           <h3>Live Editor</h3>
-          <p>Paste or write a spec file and validate it in real-time against the v1.0 schema.</p>
+          <p>Paste or write a spec file and validate it in real-time against the v1.1 schema.</p>
         </Link>
         <Link href="/formats" className="overview-card">
           <div className="overview-card-icon"><FileCode size={14} /></div>
@@ -122,11 +116,11 @@ export default function OverviewPage() {
         </Link>
       </div>
 
-      <a href="/schema/v1.0/openspec-schema.json" target="_blank" rel="noopener noreferrer" className="overview-card" style={{ marginBottom: 32 }}>
+      <a href="/schema/v1.1/openspec-schema.json" target="_blank" rel="noopener noreferrer" className="overview-card" style={{ marginBottom: 32 }}>
         <div className="overview-card-icon" style={{ color: 'var(--cyan)' }}><Diamond size={18} /></div>
         <h3>Schema URL (permanent)</h3>
         <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--cyan)', marginTop: 4 }}>
-          https://openspec.tech/schema/v1.0/openspec-schema.json
+          https://openspec.tech/schema/v1.1/openspec-schema.json
         </p>
       </a>
 

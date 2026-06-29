@@ -5,10 +5,10 @@ import addFormats from 'ajv-formats';
 import type { OpenSpec, ValidationResult, ValidationError } from '../parser/types';
 import { getTickets } from '../traversal/hierarchy';
 
-export const currentVersion = '1.0';
+export const currentVersion = '1.1';
 
 function buildHint(instancePath: string, message: string, spec: unknown): string | undefined {
-  // Status "blocked" hint
+  // Status "blocked" hint: v1.1 has no per-ticket status; blocked is derived.
   if (instancePath.includes('/status') && message.includes('blocked')) {
     return 'Blocked state is inferred from the dependency graph, not stored as an explicit status. See: openspec.tech/why#status-that-shouldnt-exist';
   }
@@ -18,12 +18,12 @@ function buildHint(instancePath: string, message: string, spec: unknown): string
     return '"blocks" = hard gate (cannot start until done). "requires" = needs output (can be scheduled flexibly)';
   }
 
-  // Missing project hint
-  if (instancePath === '' && message?.includes('project')) {
-    return 'The root object must contain a "project" with at least "id" and "name".';
+  // Missing required top-level keys hint
+  if (instancePath === '' && message?.includes('required property')) {
+    return 'An OpenSpec v1.1 document is a single specification. Required top-level keys: schemaVersion ("1.1"), id, projectId, title, status, goals, requirements, architecture, scope, techStack, folderStructures, acceptanceCriteria, nonFunctionalRequirements, guardrails, epics, blueprints.';
   }
 
-  // Check for dependsOnId referencing non-existent ticket via Ajv format error
+  // Check for ticketId referencing non-existent ticket via Ajv format error
   void spec;
 
   return undefined;
@@ -36,11 +36,11 @@ function validateDependencyReferences(spec: OpenSpec): ValidationError[] {
 
   for (const ticket of tickets) {
     for (const dep of ticket.dependencies ?? []) {
-      if (!allTicketIds.has(dep.dependsOnId)) {
+      if (!allTicketIds.has(dep.ticketId)) {
         errors.push({
           path: `/tickets/${ticket.id}/dependencies`,
-          message: `references ticket "${dep.dependsOnId}" which does not exist in the spec.`,
-          hint: `The dependsOnId "${dep.dependsOnId}" does not match any ticket ID in this spec. Verify the UUID is correct.`,
+          message: `references ticket "${dep.ticketId}" which does not exist in the spec.`,
+          hint: `The ticketId "${dep.ticketId}" does not match any ticket ID in this spec. Verify the id is correct.`,
         });
       }
     }
@@ -100,7 +100,7 @@ export function validateWithSchema(spec: unknown, schema: object): ValidationRes
  */
 export function validate(spec: unknown): ValidationResult {
   const schema = JSON.parse(
-    readFileSync(join(__dirname, '..', '..', '..', '..', 'versions', 'v1.0', 'openspec-schema.json'), 'utf-8')
+    readFileSync(join(__dirname, '..', '..', '..', '..', 'versions', 'v1.1', 'openspec-schema.json'), 'utf-8')
   );
   return validateWithSchema(spec, schema);
 }

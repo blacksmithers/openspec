@@ -1,24 +1,25 @@
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import { detectFormat } from '../src/parser/detect';
 import { parse } from '../src/parser/parse';
 import { toJson, toYaml } from '../src/parser/convert';
 import type { OpenSpec } from '../src/parser/types';
 
-const minimal: OpenSpec = {
-  openSpecVersion: '1.0',
-  project: {
-    id: '00000000-0000-0000-0000-000000000001',
-    name: 'Test Project',
-  },
-};
+const minimal = JSON.parse(
+  readFileSync(
+    join(__dirname, '..', '..', '..', 'versions', 'v1.1', 'examples', 'minimal.oschema.json'),
+    'utf-8'
+  )
+) as OpenSpec;
 
 describe('detectFormat', () => {
   it('detects JSON', () => {
-    expect(detectFormat('{"openSpecVersion": "1.0"}')).toBe('json');
+    expect(detectFormat('{"schemaVersion": "1.1"}')).toBe('json');
   });
 
   it('detects JSON with leading whitespace', () => {
-    expect(detectFormat('  \n  {"openSpecVersion": "1.0"}')).toBe('json');
+    expect(detectFormat('  \n  {"schemaVersion": "1.1"}')).toBe('json');
   });
 
   it('detects JSON arrays', () => {
@@ -26,7 +27,7 @@ describe('detectFormat', () => {
   });
 
   it('detects YAML', () => {
-    expect(detectFormat('openSpecVersion: "1.0"\nproject:\n  id: abc')).toBe('yaml');
+    expect(detectFormat('schemaVersion: "1.1"\nid: abc')).toBe('yaml');
   });
 });
 
@@ -54,9 +55,13 @@ describe('parse', () => {
   });
 
   it('parses YAML string', () => {
-    const yaml = 'openSpecVersion: "1.0"\nproject:\n  id: "00000000-0000-0000-0000-000000000001"\n  name: Test Project\n';
+    const yaml = 'schemaVersion: "1.1"\nid: spec-x\ntitle: Test Spec\n';
     const result = parse(yaml, 'yaml');
-    expect(result).toEqual(minimal);
+    expect(result).toEqual({
+      schemaVersion: '1.1',
+      id: 'spec-x',
+      title: 'Test Spec',
+    });
   });
 
   it('throws on TOON without package', () => {
