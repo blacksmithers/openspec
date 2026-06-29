@@ -73,8 +73,12 @@ export default function OverviewPage() {
   "implementationSteps": [{ "text": "Add auth middleware", ... }],
   "filesToBeCreated": ["src/middleware/auth.ts"],
   "filesToBeModified": ["src/routes/index.ts"],
+  "filesToBeDeleted": ["src/legacy/session.ts"],
+  "filesToBeReferenced": ["src/config/jwt.config.ts"],
   "codeReferences": [{ "filePath": "src/auth/jwt.ts", "symbol": "JwtConfig" }],
   "typeReferences": [{ "filePath": "src/types.ts", "typeName": "User" }],
+  "acceptanceCriteria": [{ "given": "no token", "when": "GET /me", "then": "401", ... }],
+  "testSpecification": { "testTypes": ["integration"], "qualityGates": ["auth paths covered"] },
   "dependencies": [{ "ticketId": "tkt-1", "type": "requires" }]
 }`}</pre>
             <div className="ov-ticket-footer ov-footer-pass"><Check size={14} /> Every reference explicit, every exit verifiable</div>
